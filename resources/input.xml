@@ -1,15 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml?>
 <table>
+
+
     <title>table title</title>
     <sdesc>short description</sdesc>
-    <ldesc>long description</ldesc>
+    <ldesc>>long description</ldesc>
     <link>link title</link>
     <fjowejf/>
-    <maxdown ijoj="fwefwe">
+    <maxdown ijoj='fwefwe'>
+
+
+        fwe
+
+
         download limit
     </maxdown>
     <cols>
         <th name="name of first column"
-            type="data type of first column"
+            type='data type of first column'
             format="data format for first column">
             heading for first column
         </th>
@@ -22,6 +31,8 @@
         ...
 
         <th name="name of last column"
+
+
             type="data type of last column"
             format="data format for last column">
             heading for last column
@@ -29,7 +40,7 @@
     </cols>
     <data>
         <tr>
-            <td>value for first row of first column</td>
+            <td>'value '"for first row of first column</td>
             <td>
                 value for first row of second column
             </td>

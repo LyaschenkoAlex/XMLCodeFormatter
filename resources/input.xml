@@ -1,0 +1,63 @@
+<table>
+    <title>table title</title>
+    <sdesc>short description</sdesc>
+    <ldesc>long description</ldesc>
+    <link>link title</link>
+    <fjowejf/>
+    <maxdown ijoj="fwefwe">
+        download limit
+    </maxdown>
+    <cols>
+        <th name="name of first column"
+            type="data type of first column"
+            format="data format for first column">
+            heading for first column
+        </th>
+        <th name="name of second column"
+            type="data type of second column"
+            format="data format for second column">
+            heading for second column
+        </th>
+
+        ...
+
+        <th name="name of last column"
+            type="data type of last column"
+            format="data format for last column">
+            heading for last column
+        </th>
+    </cols>
+    <data>
+        <tr>
+            <td>value for first row of first column</td>
+            <td>
+                value for first row of second column
+            </td>
+
+
+            ...
+
+
+            <td>value for first row of last column</td>
+        </tr>
+        <tr>
+
+
+            <td>value for second row of first column</td>
+            <td>value for second row of second column</td>
+
+
+            ...
+            <td>value for second row of last column</td>
+        </tr>
+        ...
+
+
+        <tr>
+            <td>value for last row of first column</td>
+            <td>value for last row of second column</td>
+            ...
+            <td>value for last row of last column</td>
+        </tr>
+    </data>
+</table>

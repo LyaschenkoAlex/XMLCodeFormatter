@@ -234,7 +234,7 @@ if __name__ == '__main__':
     # result_string = re.sub(r'&emsp;[ ]+', '&emsp;', result_string)
     # result_string = re.sub(r'&emsp;[ ]+', '&emsp;', result_string)
     # result_string = re.sub(r'<br>&emsp;(<br>&emsp;)+', '<br>&emsp;<br>&emsp;', result_string)
-    f = open("test.html", "w")
+    f = open("../resources/test.html", "w")
     # for i in tokens:
     #     for token, value in i.items():
     #         print(token + '->' + value + '|')

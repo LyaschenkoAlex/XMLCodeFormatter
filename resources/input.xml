@@ -1,19 +1,20 @@
-<?xml version     =     "1.0" encoding=     "UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <root><!---->
     <listing>
         <seller_info>
-            <fwejof></fwejof>
             <seller_name><!---->537_sb_3</seller_name>
             <seller_rating>0</seller_rating>
         </seller_info>
-        <payment_types p="fwefwe">Visa, Mastercard, , , , 0, Discover, American Express</payment_types>
+        <payment_types p="fwefwe">Visa, Mastercard, ,
+
+
+            , , 0, Discover, American Express
+        </payment_types>
         <few a="fwefwe"/>
-        <shipping_info>siteonly, Buyer Pays Shipping Costs
-            <fjweoiifj></fjweoiifj>
-        </shipping_info>
+        <shipping_info>siteonly, Buyer Pays Shipping Costs</shipping_info>
         <buyer_protection_info></buyer_protection_info>
         <auction_info>
-            <current_bid>$839.93</current_bid>
+            <current_bid>$839.93                </current_bid>
             <time_left>1 Day, 6 Hrs</time_left>
             <high_bidder>
                 <bidder_name></bidder_name>

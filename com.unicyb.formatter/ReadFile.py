@@ -21,7 +21,6 @@ def read_from_file(file_name):
 
 def get_char_from_file():
     global input_file
-    input_file
     for i in input_file:
         parse(i)
 
@@ -144,7 +143,9 @@ def formatted_less():
     # if (index_br == -1):
     #     print(result_string.count('&emsp;'))
     index_gt = result_string.rfind('&gt')
-    if ()
+    if index_gt < index_br and result_string[index_br:] != '<br>':
+        print(result_string[index_br:])
+        result_string += '<br>'
     if ((index_br == -1 and result_string.count('&lt;') > 0) or result_string[index_br + 3:].count('&lt;') > 0) \
             and (result_string.endswith('&gt') or result_string[index_gt + 3].isspace()):
         result_string += '<br>'
@@ -177,6 +178,7 @@ def formatted_in_brackets(value):
 
 def formatted_between_brackets(value):
     global result_string
+    value = value.strip()
     value = re.sub(r'<br><br>(<br>)+', '<br><br><br>', value)
     if value != '<br>':
         value = re.sub(r'<br>', '<br>' + nesting_level * '&emsp;', value)
@@ -188,8 +190,29 @@ def formatted_between_brackets(value):
 def formatted_greater():
     global result_string
     global nesting_level
+    index_less = result_string.rfind('&lt;')
+    index_less_less = result_string[:index_less].rfind('&lt;')
+    string_less = result_string[index_less_less + 4: index_less]
+    string_less = string_less.replace('<br>', '')
+    string_less = string_less.replace('&emsp;', '')
+    string_less = string_less.replace('&gt', '')
+    # print(string_less)
+    string = result_string[index_less + 4:]
+    string = string.replace('<br>', '')
+    string = string.replace('&emsp;', '')
+    string = string.replace('&gt', '')
+    if string.startswith('/'):
+        try:
+            print(string)
+            if string[1:] == string_less:
+                index_greater = result_string[:index_less].rfind('&gt')
+                result_string = result_string[:index_greater] + '&gt' + '&lt;' + string
+        except:
+            print('exception - 211')
+        # print('res->' + result_string[index_less:])
+        # print(result_string)
+        # print(True)
     result_string += '&gt'
-    # nesting_level -= 1
 
 
 def formatted_comment(value):
@@ -202,6 +225,8 @@ if __name__ == '__main__':
     read_from_file('../resources/input.xml')
     get_char_from_file()
     format_element_from_array(tokens)
+    result_string = result_string.replace('&gt', '<span class="bracket">&gt</span>')
+    result_string = result_string.replace('&lt;', '<span class="bracket">&lt;</span>')
     # format_element_from_array(tokens)
     # result_string = result_string.replace("\n", "<br>")
     # result_string = result_string.replace("\t", "&emsp;")

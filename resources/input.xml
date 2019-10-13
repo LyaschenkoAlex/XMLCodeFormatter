@@ -1,82 +1,30 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<root><!---->
-    <listing>
-        <seller_info>
-            <seller_name><!---->537_sb_3</seller_name>
-            <seller_rating>0</seller_rating>
-        </seller_info>
-        <payment_types p="fwefwe">Visa, Mastercard, ,
-
-
-            , , 0, Discover, American Express
-        </payment_types>
-        <few a="fwefwe"/>
-        <shipping_info>siteonly, Buyer Pays Shipping Costs</shipping_info>
-        <buyer_protection_info></buyer_protection_info>
-        <auction_info>
-            <current_bid>$839.93                </current_bid>
-            <time_left>1 Day, 6 Hrs</time_left>
-            <high_bidder>
-                <bidder_name></bidder_name>
-                <bidder_rating></bidder_rating>
-            </high_bidder>
-            <num_items>5</num_items>
-            <num_bids>0</num_bids>
-            <started_at>$839.93</started_at>
-            <bid_increment></bid_increment>
-            <location>Englewood , Utah, United States</location>
-            <opened>11/25/00 7:46:16 PM</opened>
-            <closed>11/28/00 7:46:16 PM</closed>
-            <id_num>315914</id_num>
-            <notes></notes>
-        </auction_info>
-        <bid_history>
-            <highest_bid_amount>839.93</highest_bid_amount>
-            <quantity>0</quantity>
-        </bid_history>
-        <item_info>
-            <memory></memory>
-            <hard_drive></hard_drive>
-            <cpu></cpu>
-            <brand></brand>
-            <description>AMD Athlon 900 Mhz Processor. New K7 CPU comes with a year warranty. Rated gamers paradise in
+<?xml version     =     "1.0" encoding=     "UTF-8"?><root>
+    <!---->      <listing>          <seller_info><seller_name><!---->537_sb_3</seller_name><seller_rating>0</seller_rating>
+</seller_info><payment_types p="fwefwe">Visa, Mastercard, , , ,   0, Discover, American Express         </payment_types><few a="fwefwe"/><shipping_info>siteonly, Buyer Pays Shipping Costs</shipping_info><buyer_protection_info></buyer_protection_info><auction_info><current_bid>$839.93</current_bid><time_left>1 Day, 6 Hrs</time_left><high_bidder><bidder_name></bidder_name><bidder_rating></bidder_rating></high_bidder><num_items>5</num_items><num_bids>0</num_bids><started_at>$839.93</started_at><bid_increment></bid_increment><location>Englewood , Utah, United States</location><opened>11/25/00 7:46:16 PM</opened><closed>11/28/00 7:46:16 PM</closed><id_num>315914</id_num><notes></notes></auction_info>
+    <bid_history><highest_bid_amount>839.93</highest_bid_amount><quantity>0</quantity></bid_history><item_info><memory></memory><hard_drive></hard_drive><cpu></cpu><brand></brand><description>AMD Athlon 900 Mhz Processor. New K7 CPU comes with a year warranty. Rated gamers paradise in
                 all
 
 
+
+
+
+
                 reviews and high benchmark ratings. Days To Ship: 5
-            </description>
-        </item_info>
-    </listing>
-    <listing>
-        <seller_info>
-            <seller_name>lapro8</seller_name>
-            <seller_rating>0</seller_rating>
-        </seller_info>
-        <payment_types>Money Order</payment_types>
-        <shipping_info>International Shipping, See Shipping Description</shipping_info>
-        <buyer_protection_info></buyer_protection_info>
-        <auction_info>
+            </description></item_info></listing><listing>
+
+
+
+        <seller_info><seller_name>lapro8</seller_name>
+            <seller_rating>0</seller_rating></seller_info><payment_types>Money Order</payment_types><shipping_info>International Shipping, See Shipping Description</shipping_info><buyer_protection_info></buyer_protection_info><auction_info>
             <current_bid>$210.00</current_bid>
-            <time_left>4 Days, 21 Hrs</time_left>
-            <high_bidder>
-                <bidder_name></bidder_name>
+            <time_left>4 Days, 21 Hrs</time_left><high_bidder><bidder_name></bidder_name>
                 <bidder_rating></bidder_rating>
-            </high_bidder>
+</high_bidder>
             <num_items>1</num_items>
-            <num_bids>0</num_bids>
-            <started_at>$210.00</started_at>
-            <bid_increment>$5.00</bid_increment>
-            <location>Cherkasy, Ukraine</location>
-            <opened>11/27/00 11:15:34 AM</opened>
-            <closed>12/2/00 11:15:34 AM</closed>
-            <id_num>320761</id_num>
-            <notes></notes>
-        </auction_info>
-        <bid_history>
-            <highest_bid_amount>$210.00</highest_bid_amount>
-            <quantity>0</quantity>
-        </bid_history>
-        <item_info>
+            <num_bids>0</num_bids><started_at>$210.00</started_at><bid_increment>$5.00</bid_increment><location>Cherkasy, Ukraine</location>
+            <opened>11/27/00 11:15:34 AM</opened><closed>12/2/00 11:15:34 AM</closed><id_num>320761</id_num>
+            <notes></notes></auction_info><bid_history><highest_bid_amount>$210.00</highest_bid_amount>
+            <quantity>0</quantity></bid_history><item_info>
             <memory>64MB Ram(Maximum - 256 MB)</memory>
             <hard_drive>4 GB Removable Hard Drive</hard_drive>
             <cpu>Intel Pentium II 266MHZ MMX</cpu>
@@ -114,7 +62,7 @@
         <buyer_protection_info></buyer_protection_info>
         <auction_info>
             <current_bid>$1,049.00</current_bid>
-            <time_left>5 Days, 20 Hrs</time_left>
+            <time_left   f="fe">5 Days, 20 Hrs</time_left>
             <high_bidder>
                 <bidder_name></bidder_name>
                 <bidder_rating></bidder_rating>
@@ -134,6 +82,23 @@
             <quantity>0</quantity>
         </bid_history>
         <item_info>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             <memory>64MB</memory>
             <hard_drive>20GB</hard_drive>
             <cpu>Celeron 600MHz</cpu>

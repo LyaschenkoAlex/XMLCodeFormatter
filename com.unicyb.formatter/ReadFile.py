@@ -5,28 +5,31 @@ number_of_brackets = 0  # <  >
 number_of_single_brackets = 0  # '  '
 number_of_double_brackets = 0  # "  "
 text_in_brackets = ""
+input_file = ""
 text_between_brackets = ""
 nesting_level = 0
 result_string = ""
+is_comment = False
 keywords_in_brackets = []
 
 
 def read_from_file(file_name):
-    return open(file_name).read()
+    global input_file
+    input_file = open(file_name).read()
+    input_file = re.sub(r'[\n][\n][\n]+', '\n\n\n', input_file)
 
 
-def get_char_from_file(input_file):
+def get_char_from_file():
+    global input_file
+    input_file
     for i in input_file:
         parse(i)
 
 
-def format_element_from_array(array):
-    for i in array:
-        create_formatted_text(i)
-
-
 def parse(input):
-    if input == "<":
+    if is_comment:
+        in_brackets(input)
+    elif input == "<":
         less()
     elif input == ">":
         greater()
@@ -41,7 +44,12 @@ def less():
     if number_of_brackets == 0 and number_of_single_brackets == 0 and number_of_double_brackets == 0:
         global text_between_brackets
         if text_between_brackets != "":
-            tokens.append({"between_brackets": text_between_brackets})
+            # text_between_brackets = text_between_brackets.strip()
+            text_between_brackets = re.sub(r'[ ]+', ' ', text_between_brackets)
+            text_between_brackets = re.sub(r'\n[ ]+', '\n', text_between_brackets)
+            text_between_brackets = text_between_brackets.replace('\n', '<br>')
+            if text_between_brackets != "":
+                tokens.append({"between_brackets": text_between_brackets})
             text_between_brackets = ""
         number_of_brackets += 1
         tokens.append({"less": "<"})
@@ -55,24 +63,15 @@ def greater():
         number_of_brackets = number_of_brackets - 1
         global text_in_brackets
         if text_in_brackets != "":
-            green_style()
-            tokens.append({"in_brackets": text_in_brackets})
+            text_in_brackets = text_in_brackets.strip()
+            text_in_brackets = re.sub(r'[ ]+', ' ', text_in_brackets)
+            text_in_brackets = re.sub(r'\n[ ]+', '\n', text_in_brackets)
+            if text_in_brackets != "":
+                tokens.append({"in_brackets": text_in_brackets})
             tokens.append({"greater": ">"})
             text_in_brackets = ""
     elif number_of_brackets == 1:
         in_brackets(">")
-
-
-def green_style():
-    global text_in_brackets
-    text_in_brackets = re.sub(r'[ ]+=', '=', text_in_brackets)
-    text_in_brackets = re.sub(r'=[ ]+', '=', text_in_brackets)
-    arr = re.findall(r'[=]["][\w\d\s\-\,.!]+["]', text_in_brackets)
-    for i in arr:
-        text_in_brackets = text_in_brackets.replace(i, '<span class="green">' + i + '</span>')
-    arr = re.findall(r"[=]['][\w\d\s\-\,.!]+[']", text_in_brackets)
-    for i in arr:
-        text_in_brackets = text_in_brackets.replace(i, '<span class="green">' + i + '</span>')
 
 
 def new_line():
@@ -86,16 +85,32 @@ def in_brackets(input):
     global text_in_brackets
     global number_of_single_brackets
     global number_of_double_brackets
-    if number_of_double_brackets == 1 and input == '"':
-        number_of_double_brackets -= 1
-    elif number_of_single_brackets == 0 and input == '"' and number_of_double_brackets == 0:
-        number_of_double_brackets += 1
-    if number_of_single_brackets == 1 and input == "'":
-        number_of_single_brackets -= 1
-    elif number_of_single_brackets == 0 and input == "'" and number_of_double_brackets == 0:
-        number_of_single_brackets += 1
-
     text_in_brackets += input
+
+    global is_comment
+    global number_of_brackets
+    global nesting_level
+    if text_in_brackets.startswith('?'):
+        print(nesting_level)
+        # nesting_level -= 1
+    if text_in_brackets.startswith('!') and not is_comment:
+        del tokens[-1]
+        number_of_brackets -= 1
+        text_in_brackets = '&lt;' + text_in_brackets
+        is_comment = True
+    if not is_comment:
+        if number_of_double_brackets == 1 and input == '"':
+            number_of_double_brackets -= 1
+        elif number_of_single_brackets == 0 and input == '"' and number_of_double_brackets == 0:
+            number_of_double_brackets += 1
+        if number_of_single_brackets == 1 and input == "'":
+            number_of_single_brackets -= 1
+        elif number_of_single_brackets == 0 and input == "'" and number_of_double_brackets == 0:
+            number_of_single_brackets += 1
+    if text_in_brackets.endswith('-->'):
+        tokens.append({"comment": text_in_brackets.replace('>', '&gt')})
+        text_in_brackets = ""
+        is_comment = False
 
 
 def between_brackets(input):
@@ -103,90 +118,103 @@ def between_brackets(input):
     text_between_brackets += input
 
 
+def format_element_from_array(array):
+    for i in array:
+        create_formatted_text(i)
+
+
 def create_formatted_text(dict):
-    for token, value in dict.items():
-        if token == "less":
+    for tkn, vl in dict.items():
+        if tkn == 'less':
             formatted_less()
-        elif token == "greater":
+        elif tkn == 'in_brackets':
+            formatted_in_brackets(vl)
+        elif tkn == 'greater':
             formatted_greater()
-        elif token == "between_brackets":
-            formatted_between_brackets(value)
-        elif token == "in_brackets":
-            formatted_in_brackets(value)
-        elif token == "NL":
-            formatted_new_line()
+        elif tkn == 'comment':
+            formatted_comment(vl)
+        elif tkn == 'between_brackets':
+            formatted_between_brackets(vl)
 
 
 def formatted_less():
     global result_string
-    # if len(result_string) > 6 and result_string[len(result_string) - 6:] == "&emsp;":
-    result_string = re.sub(r'<br>(&emsp;)+[ ]*$', '<br>', result_string)
-    i = result_string.rfind('<br>')
-    b = False
-    for j in range(i + 4, len(result_string) - 1):
-        if result_string[j].isalnum():
-            b = True
-            break
-    if not b:
-        result_string += nesting_level * "&emsp;"
-    result_string += '<span class="bracket"><</span>'
+    global nesting_level
+    index_br = result_string.rfind('<br>')
+    # if (index_br == -1):
+    #     print(result_string.count('&emsp;'))
+    index_gt = result_string.rfind('&gt')
+    if ()
+    if ((index_br == -1 and result_string.count('&lt;') > 0) or result_string[index_br + 3:].count('&lt;') > 0) \
+            and (result_string.endswith('&gt') or result_string[index_gt + 3].isspace()):
+        result_string += '<br>'
+    result_string += nesting_level * '&emsp;' + '&lt;'
+    nesting_level += 1
+
+
+def formatted_in_brackets(value):
+    # result_string = re.sub(r'&emsp;[ ]+', '&emsp;', result_string)
+    value = re.sub(r'[ ]*=[ ]*', '=', value)
+    global nesting_level
+    if value.startswith('?'):
+        nesting_level -= 1
+    if value.startswith('/'):
+        if nesting_level != 0:
+            global result_string
+            index = result_string.rfind('&emsp;')
+            index_br = result_string.rfind('<br>')
+            if result_string[index_br:].count('&lt;') > 1:
+                result_string = result_string[:index - (nesting_level - 2) * 6] + '&lt;'
+            else:
+                result_string = result_string[:index] + '&lt;'
+            # result_string = result_string[:index] + '&lt;'
+            nesting_level -= 2
+    if value.endswith('/'):
+        nesting_level -= 1
+    # value = re.sub(r'<br>', '<br>' + nesting_level * '&emsp;', value)
+    result_string += value
+
+
+def formatted_between_brackets(value):
+    global result_string
+    value = re.sub(r'<br><br>(<br>)+', '<br><br><br>', value)
+    if value != '<br>':
+        value = re.sub(r'<br>', '<br>' + nesting_level * '&emsp;', value)
+    while value.endswith('&emsp;'):
+        value = value[:len(value) - 6]
+    result_string += value
 
 
 def formatted_greater():
     global result_string
-    i = result_string.rfind('<br>')
-    result_string = re.sub(r'<span class="bracket">></span><span class="bracket"><</span>',
-                           '<span class="bracket">></span><br>' + (nesting_level - 1) * '&emsp;'
-                           + '<span class="bracket"><</span>', result_string)
-
-    result_string += '<span class="bracket">></span>'
-
-
-def formatted_between_brackets(string):
-    global result_string
-    string = string.replace("\n", "<br>" + nesting_level * "&emsp;")
-    result_string += string
-
-
-def formatted_in_brackets(string):
-    global result_string
-    keyword = string.split(" ")[0]
     global nesting_level
-    if not keyword.startswith("/") and not keyword.startswith("?") and not keyword.endswith("/"):
-        nesting_level += 1
-        keywords_in_brackets.append(keyword)
-    elif keyword.startswith("/"):
-        try:
-            last_index = result_string.rindex("&emsp;")
-            print(result_string[last_index:].count("<"))
-
-            if result_string[last_index:].count("<") == 3:
-                result_string = result_string[:last_index] + result_string[last_index + 6:]
-        except:
-            print("exception")
-        nesting_level -= 1
-        keywords_in_brackets.remove(keyword[1:])
-    string = string.replace("\n", "<br>" + nesting_level * "&emsp;")
-    result_string += string
+    result_string += '&gt'
+    # nesting_level -= 1
 
 
-def formatted_new_line():
+def formatted_comment(value):
     global result_string
-    result_string += "\n" + nesting_level * "&emsp;" + "qqqqqqq"
+    print(value)
+    result_string += value
 
 
 if __name__ == '__main__':
-    get_char_from_file(read_from_file('../resources/input.xml'))
+    read_from_file('../resources/input.xml')
+    get_char_from_file()
     format_element_from_array(tokens)
-    result_string = result_string.replace("\n", "<br>")
-    result_string = result_string.replace("\t", "&emsp;")
-    result_string = re.sub(r'[ ]+<span class="bracket">', '<span class="bracket">', result_string)
-    result_string = re.sub(r'&emsp;[ ]+', '&emsp;', result_string)
-    result_string = re.sub(r'&emsp;[ ]+', '&emsp;', result_string)
-    result_string = re.sub(r'<br>&emsp;(<br>&emsp;)+', '<br>&emsp;<br>&emsp;', result_string)
+    # format_element_from_array(tokens)
+    # result_string = result_string.replace("\n", "<br>")
+    # result_string = result_string.replace("\t", "&emsp;")
+    # result_string = re.sub(r'[ ]+<span class="bracket">', '<span class="bracket">', result_string)
+    # result_string = re.sub(r'&emsp;[ ]+', '&emsp;', result_string)
+    # result_string = re.sub(r'&emsp;[ ]+', '&emsp;', result_string)
+    # result_string = re.sub(r'<br>&emsp;(<br>&emsp;)+', '<br>&emsp;<br>&emsp;', result_string)
     f = open("test.html", "w")
+    # for i in tokens:
+    #     for token, value in i.items():
+    #         print(token + '->' + value + '|')
+    print(result_string)
     result_string = '<!DOCTYPE html><html><head><link rel="stylesheet" href="styles.css"></head><body><p>' \
                     + result_string + '</p></body></html>'
     f.write(result_string)
     f.close()
-    print(result_string)

@@ -140,10 +140,11 @@ def formatted_less():
     index_br = result_string.rfind('<br>')
     index_gt = result_string.rfind('&gt')
     if index_gt < index_br and result_string[index_br:] != '<br>':
-        result_string += '<br>'
+        result_string += '```'
+        #######################
     if ((index_br == -1 and result_string.count('&lt;') > 0) or result_string[index_br + 3:].count('&lt;') > 0) \
             and (result_string.endswith('&gt') or result_string[index_gt + 3].isspace()):
-        result_string += '<br>'
+        result_string += '```'
     result_string += nesting_level * '&emsp;' + '&lt;'
     nesting_level += 1
 
@@ -182,28 +183,45 @@ def formatted_between_brackets(value):
 def formatted_greater():
     global result_string
     global nesting_level
-    index_less = result_string.rfind('&lt;')
-    index_less_less = result_string[:index_less].rfind('&lt;')
-    string_less = result_string[index_less_less + 4: index_less]
-    string_less = string_less.replace('<br>', '')
-    string_less = string_less.replace('&emsp;', '')
-    string_less = string_less.replace('&gt', '')
-    string = result_string[index_less + 4:]
-    string = string.replace('<br>', '')
-    string = string.replace('&emsp;', '')
-    string = string.replace('&gt', '')
-    if string.startswith('/'):
-        try:
-            if string[1:] == string_less:
-                index_greater = result_string[:index_less].rfind('&gt')
-                result_string = result_string[:index_greater] + '&gt' + '&lt;' + string
-        except:
-            print('exception - 201')
+    index_of_br = result_string.rfind('<br>')
+    count_of_less = result_string[index_of_br:].count('&lt;')
+    if count_of_less > 1:
+        index_less = result_string.rfind('&lt;')
+        index_less_less = result_string[:index_less].rfind('&lt;')
+        string_less = result_string[index_less_less + 4: index_less]
+        # string_less = string_less.replace('<br>', '')
+        string_less = string_less.replace('&emsp;', '')
+        string_less = string_less.replace('&gt', '')
+        string = result_string[index_less + 4:]
+        string = string.replace('<br>', '')
+        string = string.replace('&emsp;', '')
+        string = string.replace('&gt', '')
+        if string.startswith('/'):
+            try:
+                if string[1:] == string_less.replace('```', '') or (string_less.startswith('!') and
+                                                                    string_less.replace('```', '') != string_less):
+                    index_greater = result_string[:index_less].rfind('&gt')
+                    result_string = result_string[:index_greater] + '&gt' + '&lt;' + string
+
+                else:
+                    result_string = result_string.replace('```', '<br>' + nesting_level * '&emsp;')
+            except:
+                print('exception - 201')
+        elif string.startswith('!'):
+            result_string = result_string.replace('```', '<br>' + nesting_level * '&emsp;')
+            print('comment')
+        else:
+            result_string = result_string.replace('```', '<br>')
+            result_string += '&gt'
+    else:
+        result_string = result_string.replace('```', '<br>')
     result_string += '&gt'
 
 
 def formatted_comment(value):
     global result_string
+    if result_string.endswith('<br>'):
+        result_string = result_string + nesting_level * '&emsp;'
     result_string += value
 
 
@@ -212,9 +230,10 @@ def start_format():
     read_from_file('../../../resources/input.xml')
     get_char_from_file()
     format_element_from_array(tokens)
+    result_string = result_string.replace('&gt&gt', '&gt')
     result_string = result_string.replace('&gt', '<span class="bracket">&gt</span>')
     result_string = result_string.replace('&lt;', '<span class="bracket">&lt;</span>')
-    f = open("../../../resources/test.html", "w")
+    f = open("../../../resources/outputFormattedCode.html", "w")
     result_string = '<!DOCTYPE html><html><head><link rel="stylesheet" href="styles.css"></head><body><p>' \
                     + result_string + '</p></body></html>'
     f.write(result_string)

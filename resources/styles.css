@@ -16,6 +16,10 @@
     font-size: 14px;
 }
 
+.wrong_tab {
+    color: #ff6a9f;
+}
+
 .teg_next_line {
     color: #ce23ff;
 }

@@ -84,7 +84,6 @@ def count_tags_in_line():
             str_ans = '<span class="count_tags"> <span class="line">line - ' + str(
                 i + 1) + ' -&gt;</span> too much tags in one line, MAX - 2 (' + \
                       arr_new_line[i] + ')</span>'
-            print(str_ans)
             ans_arr.append(str_ans)
     read_to_file("<br>" + "<br>".join(ans_arr[::-1]), "a+")
 
@@ -107,10 +106,39 @@ def teg_on_next_line():
                 arr_new_line[i] = arr_new_line[i].replace('<', '&lt;')
                 arr_new_line[i] = arr_new_line[i].replace(' ', '&nbsp;')
                 arr_new_line[i] = arr_new_line[i][arr_new_line[i].find('&lt;'):]
-                str_ans = '<span class = teg_next_line><span class="line">line - ' + str(
+                str_ans = '<span class = "teg_next_line"><span class="line">line - ' + str(
                     index_NL + 1) + ' -&gt; </span>' + arr_new_line[i] + ' - should be on the next line</span>'
                 ans_arr.append(str_ans)
     read_to_file("<br>" + "<br>".join(ans_arr[::-1]), "a+")
+
+
+def wrong_tab():
+    tmp_input_file = input_file
+    nesting_level = 0
+    ans_arr = []
+    arr_new_line = input_file.split('\n')
+    arr_tags = []
+    for i in range(0, len(arr_new_line)):
+        print(nesting_level)
+        print(len(arr_new_line[i]) - len(arr_new_line[i].lstrip()))
+        nesting_level_upd = nesting_level
+        if arr_new_line[i].lstrip()[1:].startswith('/'):
+            nesting_level_upd -= 1
+        if (nesting_level_upd * 4) * ' ' + arr_new_line[i].lstrip() != arr_new_line[i] and arr_new_line[i]!='':
+            str_ans = '<span class="wrong_tab"><span class="line">line - ' + str(i + 1) + ' -&gt; </span> wrong tab!'
+            ans_arr.append(str_ans)
+        for j in re.findall(r"<[^<!?]+>", arr_new_line[i]):
+            tag = j
+            tag = tag.replace('<', '')
+            tag = tag.replace('>', '')
+            if tag.startswith('/'):
+                nesting_level -= 1
+            elif not tag.endswith('/') and not tag.startswith('!') and not tag.startswith('?'):
+                nesting_level += 1
+
+    read_to_file("<br>" + "<br>".join(ans_arr), "a+")
+
+
 
 
 def read_to_file(result_string, state):
@@ -127,4 +155,5 @@ def find_errors():
     equal_sign()
     count_tags_in_line()
     teg_on_next_line()
+    wrong_tab()
     read_to_file('</p></body></html>', "a+")

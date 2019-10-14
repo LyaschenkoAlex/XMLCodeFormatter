@@ -60,6 +60,7 @@
         </item_info>
     </listing>
     <listing>
+        <fwefe/>
         <seller_info>
             <seller_name>aboutlaw</seller_name>
             <seller_rating>0</seller_rating>
@@ -357,7 +358,7 @@
                 <bidder_name></bidder_name>
                 <bidder_rating></bidder_rating>
             </high_bidder>
-            <num_items>1</num_items>
+             <num_items>1</num_items>
             <num_bids>0</num_bids>
             <started_at>$1.00</started_at>
             <bid_increment>$0.10</bid_increment>

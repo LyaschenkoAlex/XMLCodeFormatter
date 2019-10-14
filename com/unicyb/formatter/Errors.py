@@ -119,8 +119,6 @@ def wrong_tab():
     arr_new_line = input_file.split('\n')
     arr_tags = []
     for i in range(0, len(arr_new_line)):
-        print(nesting_level)
-        print(len(arr_new_line[i]) - len(arr_new_line[i].lstrip()))
         nesting_level_upd = nesting_level
         if arr_new_line[i].lstrip()[1:].startswith('/'):
             nesting_level_upd -= 1

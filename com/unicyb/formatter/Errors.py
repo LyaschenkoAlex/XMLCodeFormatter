@@ -122,7 +122,7 @@ def wrong_tab():
         nesting_level_upd = nesting_level
         if arr_new_line[i].lstrip()[1:].startswith('/'):
             nesting_level_upd -= 1
-        if (nesting_level_upd * 4) * ' ' + arr_new_line[i].lstrip() != arr_new_line[i] and arr_new_line[i]!='':
+        if (nesting_level_upd * 4) * ' ' + arr_new_line[i].lstrip() != arr_new_line[i] and arr_new_line[i] != '':
             str_ans = '<span class="wrong_tab"><span class="line">line - ' + str(i + 1) + ' -&gt; </span> wrong tab!'
             ans_arr.append(str_ans)
         for j in re.findall(r"<[^<!?]+>", arr_new_line[i]):
@@ -135,8 +135,6 @@ def wrong_tab():
                 nesting_level += 1
 
     read_to_file("<br>" + "<br>".join(ans_arr), "a+")
-
-
 
 
 def read_to_file(result_string, state):

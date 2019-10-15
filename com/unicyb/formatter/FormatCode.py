@@ -209,7 +209,7 @@ def formatted_greater():
                 print('exception - 201')
         elif string.startswith('!'):
             result_string = result_string.replace('```', '<br>' + nesting_level * '&emsp;')
-            print('comment')
+            # print('comment')
         else:
             result_string = result_string.replace('```', '<br>')
             result_string += '&gt'
@@ -238,3 +238,4 @@ def start_format():
                     + result_string + '</p></body></html>'
     f.write(result_string)
     f.close()
+    return result_string

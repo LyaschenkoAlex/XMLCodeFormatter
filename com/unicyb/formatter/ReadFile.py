@@ -20,6 +20,7 @@ def read_argv():
             print('\n\nERROR\nindent > 1\nkeep blank lines > 1\nspaces around "True" or "False"\nspace after "True" or "False"\nspace in "True" or "False"')
             raise Exception
     except:
+        start_own_format('1', '2', "False", "False", "False")
         print('Exception, arguments not valid, only basic formatting')
     # script, first, second, third, forth, fifth = argv
     # # print("indent: ", int(first))
@@ -39,5 +40,5 @@ def status():
 
 if __name__ == '__main__':
     read_argv()
-    start_format()
+    # start_format()
     find_errors()

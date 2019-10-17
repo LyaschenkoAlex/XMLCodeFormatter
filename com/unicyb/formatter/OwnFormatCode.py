@@ -52,8 +52,7 @@ def reformat_input():
             i += len('<span class="bracket">&gt</span>') - 1
         i += 1
     input_string = input_string.replace('\n', '<br>')
-    input_string = '<!DOCTYPE html><html><head><link rel="stylesheet" href="styles.css"></head><body><p>' \
-                   + input_string + '</p></body></html>'
+
 
 
 def indent_in_text(indent):
@@ -86,6 +85,7 @@ def keep_blank_lines(read_input, blank_lines):
 
 
 def start_own_format(indent, blank_lines, space_around, space_after, space_in):
+    global input_string
     format_input()
     space_after_in_tag_name(space_after, space_in)
     keep_blank_lines(read_from_file('../../../resources/input.xml'), blank_lines)
@@ -93,6 +93,14 @@ def start_own_format(indent, blank_lines, space_around, space_after, space_in):
     indent_in_text(indent)
     space_around_attribute(space_around)
     reformat_input()
-    f = open("../../../resources/ownOutputFormattedCode.html", "w")
+    f = open("../../../resources/outputFormattedCode.html", "w")
+    f.write('<!DOCTYPE html><html><head><link rel="stylesheet" href="styles.css"></head><body><p>' + input_string + '</p></body></html>')
+    f.close()
+    input_string = input_string.replace('<span class="bracket">&gt</span>', '>')
+    input_string = input_string.replace('<span class="bracket">&lt;</span>', '<')
+    input_string = input_string.replace('&nbsp;', ' ')
+    input_string = input_string.replace('<br>', '\n')
+    print(input_string)
+    f = open("../../../resources/outputFormattedCode.xml", "w")
     f.write(input_string)
     f.close()

@@ -6,19 +6,19 @@ Paste you .xml code into the "resources/input.xml" file
 <br>
 Run the ReadFile.py without parameters
 <br>
-Program will create 2 html files "resources/outputErrors.html" and "resources/outputFormattedCode.html"
+Program will create 2 html files "resources/outputErrors.html" and "resources/outputFormattedCode.xml"
 <br>
 <br>
 outputErrors.html will contain a list of errors
 <br>
-outputFormattedCode.html will contain basic formatted .xml code
+outputFormattedCode.xml will contain basic formatted .xml code
 <br>
 <br>
 Run the ReadFile.py with parameters
 <br>
-Program will create 3 html files "resources/outputErrors.html", "resources/outputFormattedCode.html" and "ownOutputFormattedCode.html"
+Program will create 2 html files "resources/outputErrors.html", "resources/outputFormattedCode.xml"
 <br>
-ownOutputFormattedCode.html will contain formatted .xml code with own parameters
+outputFormattedCode.xml will contain formatted .xml code with own parameters
 <br>
 <br>
 example:

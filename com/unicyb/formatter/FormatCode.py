@@ -233,9 +233,9 @@ def start_format():
     result_string = result_string.replace('&gt&gt', '&gt')
     result_string = result_string.replace('&gt', '<span class="bracket">&gt</span>')
     result_string = result_string.replace('&lt;', '<span class="bracket">&lt;</span>')
-    f = open("../../../resources/outputFormattedCode.html", "w")
+    # f = open("../../../resources/outputFormattedCode.html", "w")
     result_string = '<!DOCTYPE html><html><head><link rel="stylesheet" href="styles.css"></head><body><p>' \
                     + result_string + '</p></body></html>'
-    f.write(result_string)
-    f.close()
+    # f.write(result_string)
+    # f.close()
     return result_string

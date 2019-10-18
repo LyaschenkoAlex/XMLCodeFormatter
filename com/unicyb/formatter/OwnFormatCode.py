@@ -107,6 +107,7 @@ def start_own_format(indent, blank_lines, space_around, space_after, space_in):
     l = 0
     r = 0
     for i in range(0, len(arr) - 1):
+
         if left != right:
             if l == r:
                 arr[i] = int(indent) * (left - right) * ' ' + int(indent) * ' ' + arr[i]
@@ -116,6 +117,13 @@ def start_own_format(indent, blank_lines, space_around, space_after, space_in):
         right += arr[i].count('>')
         l += arr[i].count('<!--')
         r += arr[i].count('-->')
+        array = re.findall('[<][^>]+[>]', arr[i])
+        if len(array) == 2 and '!' not in array[0] and '!' not in array[1] and (array[0].split(' ')[0] != array[1][:1] + array[1][2:] and array[0].split(' ')[0] != array[1][:1] + array[1][2:-1]) :
+            index = arr[i].rfind('<') - 2
+            while arr[i][index] == ' ':
+                index -= 1
+            index += 1
+            arr[i] = arr[i][:index] + '\n' + arr[i][index:]
 
     input_string = '\n'.join(arr)
 

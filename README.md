@@ -1,22 +1,22 @@
 "# XMLCodeFormatter"
 <br>
 <br>
-Paste you .xml code into the "resources/input.xml" file
+Paste your .xml code into the "resources/input.xml" file
 <br>
 <br>
 Run the ReadFile.py without parameters
 <br>
-Program will create 2 html files "resources/outputErrors.html" and "resources/outputFormattedCode.xml"
+Program will create 2 files "resources/outputErrors.html" and "resources/outputFormattedCode.xml"
 <br>
 <br>
-outputErrors.html will contain a list of errors
+outputErrors.html will contain a list of errors for standard formatting
 <br>
 outputFormattedCode.xml will contain basic formatted .xml code
 <br>
 <br>
 Run the ReadFile.py with parameters
 <br>
-Program will create 2 html files "resources/outputErrors.html", "resources/outputFormattedCode.xml"
+Program will create 2 files "resources/outputErrors.html", "resources/outputFormattedCode.xml"
 <br>
 outputFormattedCode.xml will contain formatted .xml code with own parameters
 <br>

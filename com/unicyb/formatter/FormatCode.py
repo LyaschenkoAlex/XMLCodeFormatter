@@ -152,11 +152,15 @@ def formatted_less():
 def formatted_in_brackets(value):
     value = re.sub(r'[ ]*=[ ]*', '=', value)
     global nesting_level
+    global result_string
+    # print(result_string)
+    if result_string.endswith('\n'):
+        value = 4 * nesting_level * ' ' + '    ' + value
+        print('true')
     if value.startswith('?'):
         nesting_level -= 1
     if value.startswith('/'):
         if nesting_level != 0:
-            global result_string
             index = result_string.rfind('&emsp;')
             index_br = result_string.rfind('<br>')
             if result_string[index_br:].count('&lt;') > 1:
@@ -233,9 +237,8 @@ def start_format():
     result_string = result_string.replace('&gt&gt', '&gt')
     result_string = result_string.replace('&gt', '<span class="bracket">&gt</span>')
     result_string = result_string.replace('&lt;', '<span class="bracket">&lt;</span>')
-    # f = open("../../../resources/outputFormattedCode.html", "w")
+    while result_string.startswith('<br>'):
+        result_string = result_string[4:]
     result_string = '<!DOCTYPE html><html><head><link rel="stylesheet" href="styles.css"></head><body><p>' \
                     + result_string + '</p></body></html>'
-    # f.write(result_string)
-    # f.close()
     return result_string

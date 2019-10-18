@@ -106,13 +106,11 @@ def start_own_format(indent, blank_lines, space_around, space_after, space_in):
     right = 0
     l = 0
     r = 0
-    for i in range(0, len(arr) - 1):
+    for i in range(0, len(arr)):
 
-        if left != right:
+        if left != right or (arr[i].endswith('>')):
             if l == r:
-                arr[i] = int(indent) * (left - right) * ' ' + int(indent) * ' ' + arr[i]
-            # else:
-            #     arr[i] = int(indent) * (left - right) * ' ' + arr[i]
+                arr[i] = int(indent) * (left - right) * ' ' + arr[i]
         left += arr[i].count('<')
         right += arr[i].count('>')
         l += arr[i].count('<!--')

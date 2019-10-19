@@ -1,0 +1,45 @@
+.bracket {
+    color: #b7a634;
+}
+
+.green {
+    color: #608e61;
+}
+
+.inside_tag{
+    color: #e59906;
+    font-size: 14px;
+}
+
+.check_NL {
+    color: #fd0647;
+    font-size: 14px;
+}
+
+.wrong_tab {
+    color: #ff6a9f;
+}
+
+.teg_next_line {
+    color: #ce23ff;
+}
+
+.count_tags {
+    color: #4396ff;
+    font-size: 14px;
+}
+
+
+.line {
+    color: #c8c8c8;
+}
+
+.equal {
+    font-size: 14px;
+    color: #79e036;
+}
+body {
+    font-family: "Segoe UI", Frutiger, "Frutiger Linotype", "Dejavu Sans", "Helvetica Neue", Arial, sans-serif; font-size: 14px; font-style: normal; font-variant: normal;
+    background-color: #333333;
+    color: #c5c5c5;
+}

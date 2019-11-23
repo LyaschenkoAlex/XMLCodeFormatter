@@ -11,6 +11,7 @@ nesting_level = 0
 result_string = ""
 is_comment = False
 keywords_in_brackets = []
+is_doctype = False
 
 
 def read_from_file(file_name):
@@ -30,16 +31,19 @@ def parse(input):
     if is_comment:
         in_brackets(input)
     elif input == "<":
-        less()
+        less(input)
     elif input == ">":
-        greater()
+        greater(input)
     elif number_of_brackets == 1:
         in_brackets(input)
     elif number_of_brackets == 0:
         between_brackets(input)
 
 
-def less():
+def less(input):
+    if is_doctype:
+        in_brackets(input)
+        return
     global number_of_brackets
     if number_of_brackets == 0 and number_of_single_brackets == 0 and number_of_double_brackets == 0:
         global text_between_brackets
@@ -48,6 +52,7 @@ def less():
             text_between_brackets = re.sub(r'\n[ ]+', '\n', text_between_brackets)
             text_between_brackets = text_between_brackets.replace('\n', '<br>')
             if text_between_brackets != "":
+
                 tokens.append({"between_brackets": text_between_brackets})
             text_between_brackets = ""
         number_of_brackets += 1
@@ -56,15 +61,25 @@ def less():
         in_brackets("<")
 
 
-def greater():
+def greater(input):
+    global text_in_brackets
     global number_of_brackets
+    global is_doctype
+
+    if is_doctype and text_in_brackets.count('&lt;') != text_in_brackets.count('&gt;'):
+        in_brackets(input)
+        return
+    else:
+        is_doctype = False
+
     if number_of_brackets == 1 and number_of_single_brackets == 0 and number_of_double_brackets == 0:
         number_of_brackets = number_of_brackets - 1
-        global text_in_brackets
         if text_in_brackets != "":
             text_in_brackets = text_in_brackets.strip()
             text_in_brackets = re.sub(r'[ ]+', ' ', text_in_brackets)
             text_in_brackets = re.sub(r'\n[ ]+', '\n', text_in_brackets)
+
+            text_in_brackets = text_in_brackets.replace('\n', '\n&emsp;' * (nesting_level+2))
             if text_in_brackets != "":
                 tokens.append({"in_brackets": text_in_brackets})
             tokens.append({"greater": ">"})
@@ -84,7 +99,17 @@ def in_brackets(input):
     global text_in_brackets
     global number_of_single_brackets
     global number_of_double_brackets
-    text_in_brackets += input
+    global text_between_brackets
+    global is_doctype
+    if input == '<' and is_doctype:
+        text_in_brackets += '&lt;'
+        return
+    elif input == '>' and is_doctype:
+        text_in_brackets += '&gt;'
+        return
+
+    else:
+        text_in_brackets += input
 
     global is_comment
     global number_of_brackets
@@ -104,6 +129,15 @@ def in_brackets(input):
             number_of_single_brackets -= 1
         elif number_of_single_brackets == 0 and input == "'" and number_of_double_brackets == 0:
             number_of_single_brackets += 1
+    if text_in_brackets.startswith('&lt;!DOCTYPE') and is_comment:
+        is_doctype = True
+        # text_between_brackets = text_in_brackets
+        # text_in_brackets = ''
+        is_comment = False
+        tokens.append({"less": "<"})
+        number_of_brackets += 1
+        text_in_brackets = text_in_brackets[4:]
+
     if text_in_brackets.endswith('-->'):
         tokens.append({"comment": text_in_brackets.replace('>', '&gt')})
         text_in_brackets = ""
@@ -157,7 +191,7 @@ def formatted_in_brackets(value):
     if result_string.endswith('\n'):
         value = 4 * nesting_level * ' ' + '    ' + value
         print('true')
-    if value.startswith('?'):
+    if value.startswith('?') or value.startswith('!DOCTYPE'):
         nesting_level -= 1
     if value.startswith('/'):
         if nesting_level != 0:
@@ -208,11 +242,11 @@ def formatted_greater():
                     result_string = result_string[:index_greater] + '&gt' + '&lt;' + string
 
                 else:
-                    result_string = result_string.replace('```', '<br>' + nesting_level * '&emsp;')
+                    result_string = result_string.replace('```', '<br>' + (nesting_level) * '&emsp;')
             except:
                 print('exception - 201')
         elif string.startswith('!'):
-            result_string = result_string.replace('```', '<br>' + nesting_level * '&emsp;')
+            result_string = result_string.replace('```', '<br>' + (nesting_level) * '&emsp;')
             # print('comment')
         else:
             result_string = result_string.replace('```', '<br>')
@@ -229,9 +263,9 @@ def formatted_comment(value):
     result_string += value
 
 
-def start_format():
+def start_format(path_to_file):
     global result_string
-    read_from_file('../../../resources/input.xml')
+    read_from_file(path_to_file)
     get_char_from_file()
     format_element_from_array(tokens)
     result_string = result_string.replace('&gt&gt', '&gt')

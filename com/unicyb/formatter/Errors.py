@@ -11,7 +11,7 @@ input_file = ""
 # неправильная табуляция
 # <><><> done
 
-def check_new_lines():
+def check_new_lines(path_to_output):
     tmp_input_file = input_file
     arr_new_line = re.findall(r"[\n][\n][\n][\n]+", tmp_input_file)
     ans_arr = []
@@ -21,10 +21,10 @@ def check_new_lines():
                        '</span> -> too many NL in a row, max - 3</span>')
         tmp_input_file = tmp_input_file[:tmp_input_file.rfind(arr_new_line[i])]
     read_to_file('<!DOCTYPE html><html><head><link rel="stylesheet" href="styles.css"></head><body><p>' + "<br>".join(
-        ans_arr[::-1]), "w")
+        ans_arr[::-1]), "w", path_to_output)
 
 
-def wrong_spaces_inside_tag():
+def wrong_spaces_inside_tag(path_to_output):
     tmp_input_file = input_file
     arr_inside_tags = re.findall(r"<[^<]+>", tmp_input_file)
     ans_arr = []
@@ -40,10 +40,10 @@ def wrong_spaces_inside_tag():
                       ' -> </span> inside tag &lt;...&gt; wrong whitespaces (' + str_replaced + ')</span>'
             ans_arr.append(str_ans)
             tmp_input_file = tmp_input_file[:tmp_input_file.rfind(arr_inside_tags[i])]
-    read_to_file("<br>" + "<br>".join(ans_arr[::-1]), "a+")
+    read_to_file("<br>" + "<br>".join(ans_arr[::-1]), "a+", path_to_output)
 
 
-def equal_sign():
+def equal_sign(path_to_output):
     tmp_input_file = input_file
     arr_inside_tags = re.findall(r"<[^<]+>", tmp_input_file)
     ans_arr = []
@@ -62,10 +62,10 @@ def equal_sign():
             str_ans = '<span class="equal"> <span class="line">line - ' + str(
                 num_line + 1) + '</span> -> after and before equal sign should not be whitespace (' + str_tag + ')</span>'
             ans_arr.append(str_ans)
-    read_to_file("<br>" + "<br>".join(ans_arr[::-1]), "a+")
+    read_to_file("<br>" + "<br>".join(ans_arr[::-1]), "a+",path_to_output)
 
 
-def count_tags_in_line():
+def count_tags_in_line(path_to_output):
     tmp_input_file = input_file
     arr_new_line = input_file.split('\n')
     ans_arr = []
@@ -85,10 +85,10 @@ def count_tags_in_line():
                 i + 1) + ' -&gt;</span> too much tags in one line, MAX - 2 (' + \
                       arr_new_line[i] + ')</span>'
             ans_arr.append(str_ans)
-    read_to_file("<br>" + "<br>".join(ans_arr[::-1]), "a+")
+    read_to_file("<br>" + "<br>".join(ans_arr[::-1]), "a+", path_to_output)
 
 
-def teg_on_next_line():
+def teg_on_next_line(path_to_output):
     tmp_input_file = input_file
     arr_new_line = input_file.split('\n')
     ans_arr = []
@@ -109,10 +109,10 @@ def teg_on_next_line():
                 str_ans = '<span class = "teg_next_line"><span class="line">line - ' + str(
                     index_NL + 1) + ' -&gt; </span>' + arr_new_line[i] + ' - should be on the next line</span>'
                 ans_arr.append(str_ans)
-    read_to_file("<br>" + "<br>".join(ans_arr[::-1]), "a+")
+    read_to_file("<br>" + "<br>".join(ans_arr[::-1]), "a+", path_to_output)
 
 
-def wrong_tab():
+def wrong_tab(path_to_output):
     tmp_input_file = input_file
     nesting_level = 0
     ans_arr = []
@@ -134,22 +134,22 @@ def wrong_tab():
             elif not tag.endswith('/') and not tag.startswith('!') and not tag.startswith('?'):
                 nesting_level += 1
 
-    read_to_file("<br>" + "<br>".join(ans_arr), "a+")
+    read_to_file("<br>" + "<br>".join(ans_arr), "a+", path_to_output)
 
 
-def read_to_file(result_string, state):
-    f = open("../../../resources/outputErrors.html", state)
+def read_to_file(result_string, state, path_to_output):
+    f = open(path_to_output + '/' + "outputErrors.html", state)
     f.write(result_string)
     f.close()
 
 
-def find_errors():
+def find_errors(path_to_file, path_to_output):
     global input_file
-    input_file = read_from_file('../../../resources/input.xml')
-    check_new_lines()
-    wrong_spaces_inside_tag()
-    equal_sign()
-    count_tags_in_line()
-    teg_on_next_line()
-    wrong_tab()
-    read_to_file('</p></body></html>', "a+")
+    input_file = read_from_file(path_to_file)
+    check_new_lines(path_to_output)
+    wrong_spaces_inside_tag(path_to_output)
+    equal_sign(path_to_output)
+    count_tags_in_line(path_to_output)
+    teg_on_next_line(path_to_output)
+    wrong_tab(path_to_output)
+    read_to_file('</p></body></html>', "a+", path_to_output)

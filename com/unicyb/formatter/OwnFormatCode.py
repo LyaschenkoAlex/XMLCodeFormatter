@@ -1,15 +1,21 @@
 from com.unicyb.formatter.FormatCode import start_format
 from com.unicyb.formatter.FormatCode import read_from_file
+from sys import argv
 
 import re
-
+path_to_out = ''
 # indent = 4 - done
 # keep blank lines = 2
 # space around =" in attribute - done
 # space after tag name - done
 # space in empty tag - done
 
-input_string = start_format()
+try:
+    script, path_to_file, path_to_out, a, b , c , d, e = argv
+except:
+    cript, path_to_file, path_to_out = argv
+    pass
+input_string = start_format(path_to_file)
 
 
 def space_after_in_tag_name(space_after, space_in):
@@ -82,11 +88,13 @@ def keep_blank_lines(read_input, blank_lines):
             ################################
 
 
-def start_own_format(indent, blank_lines, space_around, space_after, space_in):
+def start_own_format(indent, blank_lines, space_around, space_after, space_in, path_to_file, path_to_output):
+    global path_to_out
     global input_string
+    path_to_out = path_to_output
     format_input()
     space_after_in_tag_name(space_after, space_in)
-    keep_blank_lines(read_from_file('../../../resources/input.xml'), blank_lines)
+    keep_blank_lines(read_from_file(path_to_file), blank_lines)
 
     indent_in_text(indent)
     space_around_attribute(space_around)
@@ -125,6 +133,6 @@ def start_own_format(indent, blank_lines, space_around, space_after, space_in):
 
     input_string = '\n'.join(arr)
 
-    f = open("../../../resources/outputFormattedCode.xml", "w")
+    f = open(path_to_output + '/' + "outputFormattedCode.xml", "w")
     f.write(input_string)
     f.close()

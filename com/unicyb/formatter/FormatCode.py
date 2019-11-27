@@ -14,14 +14,29 @@ is_comment = False
 keywords_in_brackets = []
 is_doctype = False
 in_tag = ''
-
+doctype = ''
 xml_tag_old = ''
 xmo_tag_new = ''
 
 
 def read_from_file(file_name):
     global input_file
+    global doctype
     input_file = open(file_name).read()
+    if input_file.count('<!DOCTYPE') != 0:
+        left = 1
+        right = 0
+        index = input_file.find('!DOCTYPE')
+        while left != right:
+            doctype += input_file[index]
+            index += 1
+            if input_file[index] == '<':
+                left += 1
+            elif input_file[index] == '>':
+                right += 1
+        input_file = input_file.replace(doctype, '```')
+
+
     return open(file_name).read()
 
 
@@ -84,7 +99,10 @@ def greater(input):
 
             text_in_brackets = text_in_brackets.replace('\n', '\n' + '\t' * (nesting_level + 2))
             if text_in_brackets != "":
-                tokens.append({"in_brackets": text_in_brackets})
+                if text_in_brackets == '```':
+                    tokens.append({"doctype": '<' + doctype + '>'})
+                else:
+                    tokens.append({"in_brackets": text_in_brackets})
             tokens.append({"greater": ">"})
             text_in_brackets = ""
     elif number_of_brackets == 1:
@@ -160,7 +178,10 @@ def create_new_tokens():
                 string_tag += value
             elif key == 'greater':
                 string_tag += value
-                new_tokens.append({'tag': string_tag})
+                if string_tag.startswith('<?'):
+                    new_tokens.append({'question_tag': string_tag})
+                elif string_tag != '<>':
+                    new_tokens.append({'tag': string_tag})
                 string_tag = ''
             elif key == 'in_brackets':
                 value = re.sub(r'[ ][ ]+', ' ', value)
@@ -183,6 +204,10 @@ def create_new_tokens():
                 while value.endswith(' '):
                     value = value[:-1]
                 new_tokens.append({'between_tag': value})
+            elif key == 'comment':
+                new_tokens.append({'comment': value})
+            elif key == 'doctype':
+                new_tokens.append({'doctype': '<' + doctype + '>'})
 
 
 def find_open_tag(value):
@@ -259,6 +284,12 @@ def create_new_xml():
                         if key_i == 'tag' and value_i.startswith('</') and value.endswith('\t'):
                             value = value[:-1]
                 result_string += value
+            if key == 'comment':
+                result_string += value
+            if key == 'question_tag':
+                result_string += value
+            if key == 'doctype':
+                result_string += value
 
 
 
@@ -268,6 +299,7 @@ def start_format(path_to_file):
     read_from_file(path_to_file)
     get_char_from_file()
     create_new_tokens()
+    print(tokens)
     print(new_tokens)
     create_new_xml()
     print(result_string)

@@ -1,6 +1,7 @@
 import re
 
 tokens = []
+new_tokens = []
 number_of_brackets = 0  # <  >
 number_of_single_brackets = 0  # '  '
 number_of_double_brackets = 0  # "  "
@@ -12,12 +13,15 @@ result_string = ""
 is_comment = False
 keywords_in_brackets = []
 is_doctype = False
+in_tag = ''
+
+xml_tag_old = ''
+xmo_tag_new = ''
 
 
 def read_from_file(file_name):
     global input_file
     input_file = open(file_name).read()
-    input_file = re.sub(r'[\n][\n][\n]+', '\n\n\n', input_file)
     return open(file_name).read()
 
 
@@ -50,9 +54,8 @@ def less(input):
         if text_between_brackets != "":
             text_between_brackets = re.sub(r'[ ]+', ' ', text_between_brackets)
             text_between_brackets = re.sub(r'\n[ ]+', '\n', text_between_brackets)
-            text_between_brackets = text_between_brackets.replace('\n', '<br>')
+            text_between_brackets = text_between_brackets
             if text_between_brackets != "":
-
                 tokens.append({"between_brackets": text_between_brackets})
             text_between_brackets = ""
         number_of_brackets += 1
@@ -66,7 +69,7 @@ def greater(input):
     global number_of_brackets
     global is_doctype
 
-    if is_doctype and text_in_brackets.count('&lt;') != text_in_brackets.count('&gt;'):
+    if is_doctype and text_in_brackets.count('<') != text_in_brackets.count('>'):
         in_brackets(input)
         return
     else:
@@ -79,7 +82,7 @@ def greater(input):
             text_in_brackets = re.sub(r'[ ]+', ' ', text_in_brackets)
             text_in_brackets = re.sub(r'\n[ ]+', '\n', text_in_brackets)
 
-            text_in_brackets = text_in_brackets.replace('\n', '\n&emsp;' * (nesting_level+2))
+            text_in_brackets = text_in_brackets.replace('\n', '\n' + '\t' * (nesting_level + 2))
             if text_in_brackets != "":
                 tokens.append({"in_brackets": text_in_brackets})
             tokens.append({"greater": ">"})
@@ -90,9 +93,9 @@ def greater(input):
 
 def new_line():
     if number_of_single_brackets == 0 and number_of_double_brackets == 0:
-        tokens.append({"NL": "<br>"})
+        tokens.append({"NL": "\n"})
     elif number_of_brackets == 1:
-        in_brackets("<br>")
+        in_brackets("\n")
 
 
 def in_brackets(input):
@@ -102,10 +105,10 @@ def in_brackets(input):
     global text_between_brackets
     global is_doctype
     if input == '<' and is_doctype:
-        text_in_brackets += '&lt;'
+        text_in_brackets += '<'
         return
     elif input == '>' and is_doctype:
-        text_in_brackets += '&gt;'
+        text_in_brackets += '>'
         return
 
     else:
@@ -118,7 +121,7 @@ def in_brackets(input):
     if text_in_brackets.startswith('!') and not is_comment:
         del tokens[-1]
         number_of_brackets -= 1
-        text_in_brackets = '&lt;' + text_in_brackets
+        text_in_brackets = '<' + text_in_brackets
         is_comment = True
     if not is_comment:
         if number_of_double_brackets == 1 and input == '"':
@@ -129,7 +132,7 @@ def in_brackets(input):
             number_of_single_brackets -= 1
         elif number_of_single_brackets == 0 and input == "'" and number_of_double_brackets == 0:
             number_of_single_brackets += 1
-    if text_in_brackets.startswith('&lt;!DOCTYPE') and is_comment:
+    if text_in_brackets.startswith('<!DOCTYPE') and is_comment:
         is_doctype = True
         # text_between_brackets = text_in_brackets
         # text_in_brackets = ''
@@ -139,7 +142,7 @@ def in_brackets(input):
         text_in_brackets = text_in_brackets[4:]
 
     if text_in_brackets.endswith('-->'):
-        tokens.append({"comment": text_in_brackets.replace('>', '&gt')})
+        tokens.append({"comment": text_in_brackets})
         text_in_brackets = ""
         is_comment = False
 
@@ -149,130 +152,122 @@ def between_brackets(input):
     text_between_brackets += input
 
 
-def format_element_from_array(array):
-    for i in array:
-        create_formatted_text(i)
+def create_new_tokens():
+    string_tag = ''
+    for i in tokens:
+        for key, value in i.items():
+            if key == 'less':
+                string_tag += value
+            elif key == 'greater':
+                string_tag += value
+                new_tokens.append({'tag': string_tag})
+                string_tag = ''
+            elif key == 'in_brackets':
+                value = re.sub(r'[ ][ ]+', ' ', value)
+                value = re.sub(r'[ ]+=[ ]+"', '="', value)
+                while value.startswith(' '):
+                    value = value[1:]
+                while value.endswith(' '):
+                    value = value[:-1]
+                if value.endswith('/'):
+                    while value[:-1].endswith(' '):
+                        value = value [:-2] + '/'
+                if value.startswith('/'):
+                    while value[1:].startswith(' '):
+                        value = '/' + value[2:]
+                string_tag += value
+            elif key == 'between_brackets':
+                value = re.sub(r'[ ][ ]+', ' ', value)
+                while value.startswith(' '):
+                    value = value[1:]
+                while value.endswith(' '):
+                    value = value[:-1]
+                new_tokens.append({'between_tag': value})
 
 
-def create_formatted_text(dict):
-    for tkn, vl in dict.items():
-        if tkn == 'less':
-            formatted_less()
-        elif tkn == 'in_brackets':
-            formatted_in_brackets(vl)
-        elif tkn == 'greater':
-            formatted_greater()
-        elif tkn == 'comment':
-            formatted_comment(vl)
-        elif tkn == 'between_brackets':
-            formatted_between_brackets(vl)
+def find_open_tag(value):
+    s = ''
+    for i in value:
+        if i == ' ' or i == '>':
+            break
+        s += i
+    return s
 
 
-def formatted_less():
-    global result_string
+def find_close_tag(value):
+    return value[0] + value[2:-1]
+
+
+def find_some_tag(value):
+    s = value[0]
+    for i in range(2, len(value)):
+        if i == ' ' or i == '>':
+            break
+        s += value[i]
+    return s
+
+def create_new_xml():
     global nesting_level
-    index_br = result_string.rfind('<br>')
-    index_gt = result_string.rfind('&gt')
-    if index_gt < index_br and result_string[index_br:] != '<br>':
-        result_string += '```'
-        #######################
-    if ((index_br == -1 and result_string.count('&lt;') > 0) or result_string[index_br + 3:].count('&lt;') > 0) \
-            and (result_string.endswith('&gt') or result_string[index_gt + 3].isspace()):
-        result_string += '```'
-    result_string += nesting_level * '&emsp;' + '&lt;'
-    nesting_level += 1
-
-
-def formatted_in_brackets(value):
-    value = re.sub(r'[ ]*=[ ]*', '=', value)
-    global nesting_level
     global result_string
-    # print(result_string)
-    if result_string.endswith('\n'):
-        value = 4 * nesting_level * ' ' + '    ' + value
-        print('true')
-    if value.startswith('?') or value.startswith('!DOCTYPE'):
-        nesting_level -= 1
-    if value.startswith('/'):
-        if nesting_level != 0:
-            index = result_string.rfind('&emsp;')
-            index_br = result_string.rfind('<br>')
-            if result_string[index_br:].count('&lt;') > 1:
-                result_string = result_string[:index - (nesting_level - 2) * 6] + '&lt;'
-            else:
-                result_string = result_string[:index] + '&lt;'
-            nesting_level -= 2
-    if value.endswith('/'):
-        nesting_level -= 1
-    result_string += value
+    for i in range(len(new_tokens)):
+        for key, value in new_tokens[i].items():
+            if key == 'tag':
+                if i > 0 and value.startswith('</'):
+                    for key_i, value_i in new_tokens[i - 1].items():
+                        if key_i == 'tag' and result_string.endswith('\t'):
+                            result_string = result_string[:-1]
+                if i > 2 and value.startswith('</') and not result_string.endswith('\t') and not result_string.endswith('\n'):
+                    for key_i, value_i in new_tokens[i - 1].items():
+                        if key_i == 'tag':
+                            if not value_i.startswith('</') and not value_i.endswith('/>'):
+                                a = find_open_tag(value_i)
+                                b = find_close_tag(value)
+                                if a != b:
+                                    result_string = result_string + '\n' + '\t' * (nesting_level - 1)
+                            else:
+                                result_string = result_string + '\n' + '\t' * (nesting_level - 1)
+                        else:
+                            for key_i_i, value_i_i in new_tokens[i - 2].items():
+                                if key_i_i == 'tag':
+                                    if not value_i_i.startswith('</') and not value_i_i.endswith('/>'):
+                                        a = find_open_tag(value_i_i)
+                                        b = find_close_tag(value)
+                                        if a != b:
+                                            result_string = result_string + '\n' + '\t' * (nesting_level - 1)
+                                    else:
+                                        result_string = result_string + '\n' + '\t' * (nesting_level - 1)
+
+                result_string += value
+                if not value.startswith('</') and not value.endswith('/>'):
+                    nesting_level += 1
+                elif value.startswith('</'):
+                    nesting_level -= 1
+                if len(new_tokens) > i + 1:
+                    if not value.startswith('</') and not value.endswith('/>'):
+                        for key_i, value_i in new_tokens[i + 1].items():
+                            if key_i == 'tag':
+                                if not value_i.startswith('</'):
+                                    result_string += '\n' + '\t' * nesting_level
+                    else:
+                        for key_i, value_i in new_tokens[i + 1].items():
+                            if key_i == 'tag':
+                                result_string += '\n' + '\t' * nesting_level
+            if key == 'between_tag':
+                value = value.replace('\n', '\n' + '\t' * nesting_level)
+                if len(new_tokens) > i + 1:
+                    for key_i, value_i in new_tokens[i + 1].items():
+                        if key_i == 'tag' and value_i.startswith('</') and value.endswith('\t'):
+                            value = value[:-1]
+                result_string += value
 
 
-def formatted_between_brackets(value):
-    global result_string
-    value = value.strip()
-    value = re.sub(r'<br><br>(<br>)+', '<br><br><br>', value)
-    if value != '<br>':
-        value = re.sub(r'<br>', '<br>' + nesting_level * '&emsp;', value)
-    while value.endswith('&emsp;'):
-        value = value[:len(value) - 6]
-    result_string += value
-
-
-def formatted_greater():
-    global result_string
-    global nesting_level
-    index_of_br = result_string.rfind('<br>')
-    count_of_less = result_string[index_of_br:].count('&lt;')
-    if count_of_less > 1:
-        index_less = result_string.rfind('&lt;')
-        index_less_less = result_string[:index_less].rfind('&lt;')
-        string_less = result_string[index_less_less + 4: index_less]
-        # string_less = string_less.replace('<br>', '')
-        string_less = string_less.replace('&emsp;', '')
-        string_less = string_less.replace('&gt', '')
-        string = result_string[index_less + 4:]
-        string = string.replace('<br>', '')
-        string = string.replace('&emsp;', '')
-        string = string.replace('&gt', '')
-        if string.startswith('/'):
-            try:
-                if string[1:] == string_less.replace('```', '') or (string_less.startswith('!') and
-                                                                    string_less.replace('```', '') != string_less):
-                    index_greater = result_string[:index_less].rfind('&gt')
-                    result_string = result_string[:index_greater] + '&gt' + '&lt;' + string
-
-                else:
-                    result_string = result_string.replace('```', '<br>' + (nesting_level) * '&emsp;')
-            except:
-                print('exception - 201')
-        elif string.startswith('!'):
-            result_string = result_string.replace('```', '<br>' + (nesting_level) * '&emsp;')
-            # print('comment')
-        else:
-            result_string = result_string.replace('```', '<br>')
-            result_string += '&gt'
-    else:
-        result_string = result_string.replace('```', '<br>')
-    result_string += '&gt'
-
-
-def formatted_comment(value):
-    global result_string
-    if result_string.endswith('<br>'):
-        result_string = result_string + nesting_level * '&emsp;'
-    result_string += value
 
 
 def start_format(path_to_file):
     global result_string
     read_from_file(path_to_file)
     get_char_from_file()
-    format_element_from_array(tokens)
-    result_string = result_string.replace('&gt&gt', '&gt')
-    result_string = result_string.replace('&gt', '<span class="bracket">&gt</span>')
-    result_string = result_string.replace('&lt;', '<span class="bracket">&lt;</span>')
-    while result_string.startswith('<br>'):
-        result_string = result_string[4:]
-    result_string = '<!DOCTYPE html><html><head><link rel="stylesheet" href="styles.css"></head><body><p>' \
-                    + result_string + '</p></body></html>'
-    return result_string
+    create_new_tokens()
+    print(new_tokens)
+    create_new_xml()
+    print(result_string)

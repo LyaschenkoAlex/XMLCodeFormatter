@@ -1,5 +1,6 @@
 import re
 from sys import argv
+from Errors import find_errors
 tokens = []
 new_tokens = []
 number_of_brackets = 0  # <  >
@@ -348,3 +349,4 @@ if __name__ == '__main__':
         result_string = result_string.replace('\t', ' ' * indent)
     f.write(result_string)
     f.close()
+    find_errors(directory_path, path_to_res)

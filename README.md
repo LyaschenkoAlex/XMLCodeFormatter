@@ -1,33 +1,31 @@
 "# XMLCodeFormatter"
 <br>
 <br>
-Paste your .xml code into the "resources/input.xml" file
 <br>
 <br>
-Run the ReadFile.py without parameters
+Run FormatCode.py with 2 parameters, input directory and output, example:
 <br>
-Program will create 2 files "resources/outputErrors.html" and "resources/outputFormattedCode.xml"
+python3 FormatCode.py /home/alex/IdeaProjects/testXML/test.xml /home/alex/IdeaProjects/testXML
 <br>
-<br>
-outputErrors.html will contain a list of errors for standard formatting
-<br>
-outputFormattedCode.xml will contain basic formatted .xml code
+Program will create 2 files in output directory "outputErrors.html" and "formatted'filename'.xml"
 <br>
 <br>
-Run the ReadFile.py with parameters
+outputErrors.html will contain a list of errors
+
 <br>
-Program will create 2 files "resources/outputErrors.html", "resources/outputFormattedCode.xml"
+Run the ReadFile.py with 4 parameters, input directory, output, indent, blank lines, space around =" and space in empty tag:
 <br>
-outputFormattedCode.xml will contain formatted .xml code with own parameters
+indent is a number, it must be >= 0
+<br>
+blank lines is a number, it must be >= 0
+<br>
+space around =" can be "-t" True or "-f" False
+<br>
+space in empty tag cab be "-t" or "-f"
+<br> 
+Program will create 2 files in output directory "outputErrors.html" and "formatted'filename'.xml"
 <br>
 <br>
 example:
-ReadFile.py 6 5 True True True
-<br>
-first parameter - indent, must be > 1
-<br>
-second parameter - keep blank lines, must be > 1
-<br>
-third parameter - space around =", must be "True" or "False"
-<br>
-forth parameter - space in empty tag, must be "True" or "False"
+python3 FormatCode.py /home/alex/IdeaProjects/testXML/test.xml /home/alex/IdeaProjects/testXML 10 1 -t -t
+

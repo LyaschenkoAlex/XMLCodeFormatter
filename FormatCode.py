@@ -1,5 +1,5 @@
 import re
-
+from sys import argv
 tokens = []
 new_tokens = []
 number_of_brackets = 0  # <  >
@@ -19,10 +19,22 @@ xml_tag_old = ''
 xmo_tag_new = ''
 
 
+directory_path = ''
+path_to_res = ''
+indent = ''
+blank_lines = ''
+space_around = ''
+space_in_empty_tag = ''
+
+
 def read_from_file(file_name):
     global input_file
     global doctype
+    global blank_lines
     input_file = open(file_name).read()
+    if blank_lines == '':
+        blank_lines = 2
+    input_file = re.sub(r'[\n]' + '[\n]' * blank_lines + '[\n]+', '\n' * (blank_lines + 1), input_file)
     if input_file.count('<!DOCTYPE') != 0:
         left = 1
         right = 0
@@ -186,6 +198,8 @@ def create_new_tokens():
             elif key == 'in_brackets':
                 value = re.sub(r'[ ][ ]+', ' ', value)
                 value = re.sub(r'[ ]+=[ ]+"', '="', value)
+                if space_around == '-t':
+                    value = value.replace('="', ' = "')
                 while value.startswith(' '):
                     value = value[1:]
                 while value.endswith(' '):
@@ -289,6 +303,8 @@ def create_new_xml():
             if key == 'question_tag':
                 result_string += value
             if key == 'doctype':
+                value = re.sub(r'[ ][ ]+', ' ', value)
+                value = value.replace('\n', '\n' + '\t' * (nesting_level + 1))
                 result_string += value
 
 
@@ -299,7 +315,36 @@ def start_format(path_to_file):
     read_from_file(path_to_file)
     get_char_from_file()
     create_new_tokens()
-    print(tokens)
-    print(new_tokens)
+    # print(tokens)
+    # print(new_tokens)
     create_new_xml()
-    print(result_string)
+    # print(result_string)
+
+if __name__ == '__main__':
+    # global directory_path
+    # global path_to_res
+    # global indent
+    # global blank_lines
+    # global space_around
+    # global space_in_empty_tag
+    try:
+        program_path, directory_path, path_to_res, indent, blank_lines, space_around, space_in_empty_tag = argv
+        print("input path -> " + directory_path)#+
+        print("output path -> " + path_to_res)#+
+        print("indent -> " + indent)#+
+        print("blank lines -> " + blank_lines)#+
+        print("space around -> " + space_around)#+
+        print("space in empty tag -> " + space_in_empty_tag)#+
+        blank_lines = int(blank_lines)
+        indent = int(indent)
+    except:
+        program_path, directory_path, path_to_res = argv
+        print('Only basic formatting')
+    start_format(directory_path)
+    f = open(path_to_res + '/' + "formatted" + directory_path.split('/')[-1], 'w')
+    if space_in_empty_tag == '-t':
+        result_string = result_string.replace('/>', ' />')
+    if indent != '':
+        result_string = result_string.replace('\t', ' ' * indent)
+    f.write(result_string)
+    f.close()

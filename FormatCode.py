@@ -292,6 +292,21 @@ def create_new_xml():
                         for key_i, value_i in new_tokens[i + 1].items():
                             if key_i == 'tag':
                                 result_string += '\n' + '\t' * nesting_level
+                ####################
+                aa = re.split(r'\n', result_string)
+                for ii in range(len(aa) - 1, -1, -1):
+                    if aa[ii].strip() != '':
+                        if aa[ii].count('</') == 1 and aa[ii].count('<') == 1:
+                            if not aa[ii].startswith('<'):
+                                aa[ii] = aa[ii].replace('<', '\n' + '\t' * nesting_level + '<')
+                                result_string = '\n'.join(aa)
+                        break
+                # if result_string.split('\n')[-1].count('</') == 1 and result_string.split('\n')[-1].count('<') == 1:
+                #     if not result_string.split('\n')[-1].startswith('<'):
+                #         k = result_string.split('\n')[-1]
+                #         result_string = result_string[:len(result_string) - len(k)] + result_string.split('\n')[-1].replace('<', '\n' + '\t' * nesting_level + '<')
+
+
             if key == 'between_tag':
                 value = value.replace('\n', '\n' + '\t' * nesting_level)
                 if len(new_tokens) > i + 1:
@@ -347,6 +362,11 @@ if __name__ == '__main__':
         result_string = result_string.replace('/>', ' />')
     if indent != '':
         result_string = result_string.replace('\t', ' ' * indent)
+    a = result_string.split('\n')
+    for i in range(len(a)):
+        if a[i].count('</') == 1 and a[i].count('<') == 1:
+            if not a[i].strip().startswith('<'):
+                a[i]
     f.write(result_string)
     f.close()
     find_errors(directory_path, path_to_res)

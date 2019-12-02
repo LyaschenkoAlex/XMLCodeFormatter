@@ -1,6 +1,7 @@
 import re
 from sys import argv
 from Errors import find_errors
+
 tokens = []
 new_tokens = []
 number_of_brackets = 0  # <  >
@@ -18,7 +19,6 @@ in_tag = ''
 doctype = ''
 xml_tag_old = ''
 xmo_tag_new = ''
-
 
 directory_path = ''
 path_to_res = ''
@@ -48,7 +48,6 @@ def read_from_file(file_name):
             elif input_file[index] == '>':
                 right += 1
         input_file = input_file.replace(doctype, '```')
-
 
     return open(file_name).read()
 
@@ -207,7 +206,7 @@ def create_new_tokens():
                     value = value[:-1]
                 if value.endswith('/'):
                     while value[:-1].endswith(' '):
-                        value = value [:-2] + '/'
+                        value = value[:-2] + '/'
                 if value.startswith('/'):
                     while value[1:].startswith(' '):
                         value = '/' + value[2:]
@@ -246,7 +245,8 @@ def find_some_tag(value):
         s += value[i]
     return s
 
-def create_new_xml():
+
+def create_new_xml(continuation_indent):
     global nesting_level
     global result_string
     for i in range(len(new_tokens)):
@@ -256,7 +256,8 @@ def create_new_xml():
                     for key_i, value_i in new_tokens[i - 1].items():
                         if key_i == 'tag' and result_string.endswith('\t'):
                             result_string = result_string[:-1]
-                if i > 2 and value.startswith('</') and not result_string.endswith('\t') and not result_string.endswith('\n'):
+                if i > 2 and value.startswith('</') and not result_string.endswith('\t') and not result_string.endswith(
+                        '\n'):
                     for key_i, value_i in new_tokens[i - 1].items():
                         if key_i == 'tag':
                             if not value_i.startswith('</') and not value_i.endswith('/>'):
@@ -276,8 +277,12 @@ def create_new_xml():
                                             result_string = result_string + '\n' + '\t' * (nesting_level - 1)
                                     else:
                                         result_string = result_string + '\n' + '\t' * (nesting_level - 1)
-
-                result_string += value
+                value = re.sub('\t', ' ', value)
+                value = re.sub('[ ][ ]+', ' ', value)
+                value = value.replace('\n ', '\n')
+                q = value.replace('\n', ' ' * (nesting_level - 1) * continuation_indent)
+                result_string += value.replace('\n', '\n' + ' ' * continuation_indent + '\t' * nesting_level)
+                # result_string += value
                 if not value.startswith('</') and not value.endswith('/>'):
                     nesting_level += 1
                 elif value.startswith('</'):
@@ -292,7 +297,6 @@ def create_new_xml():
                         for key_i, value_i in new_tokens[i + 1].items():
                             if key_i == 'tag':
                                 result_string += '\n' + '\t' * nesting_level
-                ####################
                 aa = re.split(r'\n', result_string)
                 for ii in range(len(aa) - 1, -1, -1):
                     if aa[ii].strip() != '':
@@ -301,12 +305,6 @@ def create_new_xml():
                                 aa[ii] = aa[ii].replace('<', '\n' + '\t' * nesting_level + '<')
                                 result_string = '\n'.join(aa)
                         break
-                # if result_string.split('\n')[-1].count('</') == 1 and result_string.split('\n')[-1].count('<') == 1:
-                #     if not result_string.split('\n')[-1].startswith('<'):
-                #         k = result_string.split('\n')[-1]
-                #         result_string = result_string[:len(result_string) - len(k)] + result_string.split('\n')[-1].replace('<', '\n' + '\t' * nesting_level + '<')
-
-
             if key == 'between_tag':
                 value = value.replace('\n', '\n' + '\t' * nesting_level)
                 if len(new_tokens) > i + 1:
@@ -324,49 +322,63 @@ def create_new_xml():
                 result_string += value
 
 
-
-
-def start_format(path_to_file):
+def start_format(path_to_file, continuation_indent):
     global result_string
     read_from_file(path_to_file)
     get_char_from_file()
     create_new_tokens()
-    # print(tokens)
-    # print(new_tokens)
-    create_new_xml()
-    # print(result_string)
+    create_new_xml(continuation_indent)
+
 
 if __name__ == '__main__':
-    # global directory_path
-    # global path_to_res
-    # global indent
-    # global blank_lines
-    # global space_around
-    # global space_in_empty_tag
+    space_after_tag = '-f'
+    continuation_indent = 8  # +
+    ##############
+    # keep blank lines
+    # keep blank lines in text
+    ############
     try:
-        program_path, directory_path, path_to_res, indent, blank_lines, space_around, space_in_empty_tag = argv
-        print("input path -> " + directory_path)#+
-        print("output path -> " + path_to_res)#+
-        print("indent -> " + indent)#+
-        print("blank lines -> " + blank_lines)#+
-        print("space around -> " + space_around)#+
-        print("space in empty tag -> " + space_in_empty_tag)#+
+        program_path, directory_path, path_to_res, indent, continuation_indent, blank_lines, space_around, space_in_empty_tag, indent_on_empty_line, space_after_tag = argv
+        print("input path -> " + directory_path)  # +
+        print("output path -> " + path_to_res)  # +
+        print("indent -> " + indent)  # +
+        print("contination indent -> " + continuation_indent)  # +
+        print("blank lines -> " + blank_lines)  # +
+        print("space around -> " + space_around)  # +
+        print("space in empty tag -> " + space_in_empty_tag)  # +
+        print("indent on empty tag -> " + indent_on_empty_line)
+        print("space after tag -> " + space_after_tag)
         blank_lines = int(blank_lines)
         indent = int(indent)
+        continuation_indent = int(continuation_indent)
     except:
+        keep_line_breaks = '-f'
+        indent_on_empty_line = '-f'
+        continuation_indent = 8
         program_path, directory_path, path_to_res = argv
         print('Only basic formatting')
-    start_format(directory_path)
+    start_format(directory_path, continuation_indent)
     f = open(path_to_res + '/' + "formatted" + directory_path.split('/')[-1], 'w')
     if space_in_empty_tag == '-t':
         result_string = result_string.replace('/>', ' />')
     if indent != '':
         result_string = result_string.replace('\t', ' ' * indent)
-    a = result_string.split('\n')
-    for i in range(len(a)):
-        if a[i].count('</') == 1 and a[i].count('<') == 1:
-            if not a[i].strip().startswith('<'):
-                a[i]
+    if indent_on_empty_line == '-f':
+        a = result_string.split('\n')
+        for i in range(len(a)):
+            if a[i].strip() == '':
+                a[i] = ''
+        result_string = '\n'.join(a)
+    if space_after_tag == '-t':
+        result_string = result_string.replace(' />', '/>')
+        a = re.findall('<[^<]+>', result_string)
+        for i in a:
+            if i.endswith(' />'):
+                continue
+            elif i.endswith('/>'):
+                result_string = result_string.replace(i, i[:-2] + ' />')
+            elif i.endswith('>') and not i.endswith('-->') and not i.endswith(' >'):
+                result_string = result_string.replace(i, i[:-1] + ' >')
     f.write(result_string)
     f.close()
     find_errors(directory_path, path_to_res)

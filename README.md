@@ -14,7 +14,7 @@ Program will create 2 files in output directory "outputErrors.html" for basic fo
 outputErrors.html will contain a list of errors
 
 <br>
-Run the ReadFile.py with 9 parameters: input directory, output, indent, continuation indent, blank lines, space around =", space in empty tag, indent on empty line and space after tag:
+Run the ReadFile.py with 12 parameters: input directory, output, indent, continuation indent, blank lines, space around =", space in empty tag, indent on empty line, space after tag, keep white spaces, wrap text, keep line breaks in text:
 <br>
 indent is a number, it must be >= 0
 <br>
@@ -29,6 +29,13 @@ space in empty tag cab be "-t" or "-f"
 indent in empty line can be "-t" or "-f"
 <br>
 space after tag can be "-t" or "-f"
+<br>
+keep white spaces can be "-t" or "-f"
+<br>
+wrap text can be "-t" or "-f"
+<br>
+keep line breaks in text can be "-t" or "-f"
+<br>
 <br>
 Program will create 2 files in output directory "Errors.html" and "formatted'filename'.xml"
 <br>

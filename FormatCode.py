@@ -52,17 +52,17 @@ def read_from_file(file_name):
     return open(file_name).read()
 
 
-def get_char_from_file():
+def get_char_from_file(wrap_text, keep_line_breaks_in_text):
     global input_file
     for i in input_file:
-        parse(i)
+        parse(i, wrap_text, keep_line_breaks_in_text)
 
 
-def parse(input):
+def parse(input, wrap_text, keep_line_breaks_in_text):
     if is_comment:
         in_brackets(input)
     elif input == "<":
-        less(input)
+        less(input, wrap_text, keep_line_breaks_in_text)
     elif input == ">":
         greater(input)
     elif number_of_brackets == 1:
@@ -71,7 +71,7 @@ def parse(input):
         between_brackets(input)
 
 
-def less(input):
+def less(input, wrap_text, keep_line_breaks_in_text):
     if is_doctype:
         in_brackets(input)
         return
@@ -83,6 +83,32 @@ def less(input):
             text_between_brackets = re.sub(r'\n[ ]+', '\n', text_between_brackets)
             text_between_brackets = text_between_brackets
             if text_between_brackets != "":
+                #############
+                if keep_line_breaks_in_text == '-f':
+                    if len(text_between_brackets) > 110:
+                        first = 0
+                        second = 0
+                        a = 0
+                        while text_between_brackets[a] == '\n':
+                            a += 1
+                            first += 1
+                        a = len(text_between_brackets) - 1
+                        while text_between_brackets[a] == '\n':
+                            a -= 1
+                            second += 1
+                        text_between_brackets = text_between_brackets.replace('\n', ' ')
+                        text_between_brackets = re.sub(r'[ ][ ]+', ' ', text_between_brackets)
+                        for ji in range(110, len(text_between_brackets), 110):
+                            text_between_brackets = text_between_brackets[:ji] + '\n' + text_between_brackets[ji:]
+                        text_between_brackets = '\n' * first + text_between_brackets + '\n' * second
+                #############
+                if wrap_text == '-t':
+                    arr_between = text_between_brackets.split('\n')
+                    for ji in range(len(arr_between)):
+                        if len(arr_between[ji]) > 110:
+                            arr_between[ji] = arr_between[ji][:110] + '\n' + arr_between[ji][150:]
+                    text_between_brackets = '\n'.join(arr_between)
+                ##################
                 tokens.append({"between_brackets": text_between_brackets})
             text_between_brackets = ""
         number_of_brackets += 1
@@ -323,10 +349,10 @@ def create_new_xml(continuation_indent):
                 result_string += value
 
 
-def start_format(path_to_file, continuation_indent):
+def start_format(path_to_file, continuation_indent, wrap_text, keep_line_breaks_in_text):
     global result_string
     read_from_file(path_to_file)
-    get_char_from_file()
+    get_char_from_file(wrap_text, keep_line_breaks_in_text)
     create_new_tokens()
     create_new_xml(continuation_indent)
 
@@ -334,12 +360,15 @@ def start_format(path_to_file, continuation_indent):
 if __name__ == '__main__':
     space_after_tag = '-f'
     continuation_indent = 8  # +
+    keep_white_spaces = '-f'
+    wrap_text = '-t'
+    keep_line_breaks_in_text = '-t'
     ##############
     # keep blank lines
     # keep blank lines in text
     ############
     try:
-        program_path, directory_path, path_to_res, indent, continuation_indent, blank_lines, space_around, space_in_empty_tag, indent_on_empty_line, space_after_tag = argv
+        program_path, directory_path, path_to_res, indent, continuation_indent, blank_lines, space_around, space_in_empty_tag, indent_on_empty_line, space_after_tag, keep_white_spaces, wrap_text, keep_line_breaks_in_text = argv
         print("input path -> " + directory_path)  # +
         print("output path -> " + path_to_res)  # +
         print("indent -> " + indent)  # +
@@ -349,17 +378,31 @@ if __name__ == '__main__':
         print("space in empty tag -> " + space_in_empty_tag)  # +
         print("indent on empty tag -> " + indent_on_empty_line)
         print("space after tag -> " + space_after_tag)
+        print("keep white spaces -> " + keep_white_spaces)
+        print("wrap text -> " + wrap_text)
+        print("keep line breaks in text -> " + keep_line_breaks_in_text)
         blank_lines = int(blank_lines)
         indent = int(indent)
         continuation_indent = int(continuation_indent)
     except:
+        keep_line_breaks_in_text = '-t'
+        wrap_text = '-t'
+        keep_white_spaces = '-f'
         keep_line_breaks = '-f'
         indent_on_empty_line = '-f'
         continuation_indent = 8
         program_path, directory_path, path_to_res = argv
         print('Only basic formatting')
-    start_format(directory_path, continuation_indent)
+
+    start_format(directory_path, continuation_indent, wrap_text, keep_line_breaks_in_text)
     f = open(path_to_res + '/' + "formatted" + directory_path.split('/')[-1], 'w')
+
+    if keep_white_spaces == '-t':
+        input_file = open(directory_path).read()
+        print(input_file)
+        f.write(input_file)
+        f.close()
+        exit(0)
     if space_in_empty_tag == '-t':
         result_string = result_string.replace('/>', ' />')
     if indent != '':

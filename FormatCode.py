@@ -85,7 +85,7 @@ def less(input, wrap_text, keep_line_breaks_in_text):
             if text_between_brackets != "":
                 #############
                 if keep_line_breaks_in_text == '-f':
-                    if len(text_between_brackets) > 110:
+                    if len(text_between_brackets) > 10:
                         first = 0
                         second = 0
                         a = 0
@@ -278,6 +278,16 @@ def create_new_xml(continuation_indent):
     for i in range(len(new_tokens)):
         for key, value in new_tokens[i].items():
             if key == 'tag':
+                if len(new_tokens) -1 > i and not value.startswith('</'):
+                    if len(result_string) > 0 and not result_string.endswith('\n'):
+                        for key_j, value_j in new_tokens[i + 1].items():
+                            if key_j == 'between_tag':
+                                qqq = result_string
+                                while qqq.endswith('\t') or qqq.endswith(' '):
+                                    qqq = qqq[:-1]
+                                if not qqq.endswith('\n'):
+                                    if value_j.startswith('\n'):
+                                        result_string += '\n' + '\t' * nesting_level
                 if i > 0 and value.startswith('</'):
                     for key_i, value_i in new_tokens[i - 1].items():
                         if key_i == 'tag' and result_string.endswith('\t'):
@@ -376,7 +386,7 @@ if __name__ == '__main__':
         print("blank lines -> " + blank_lines)  # +
         print("space around -> " + space_around)  # +
         print("space in empty tag -> " + space_in_empty_tag)  # +
-        print("indent on empty tag -> " + indent_on_empty_line)
+        print("indent on empty line -> " + indent_on_empty_line)
         print("space after tag -> " + space_after_tag)
         print("keep white spaces -> " + keep_white_spaces)
         print("wrap text -> " + wrap_text)
@@ -399,7 +409,6 @@ if __name__ == '__main__':
 
     if keep_white_spaces == '-t':
         input_file = open(directory_path).read()
-        print(input_file)
         f.write(input_file)
         f.close()
         exit(0)

@@ -36,10 +36,9 @@ wrap text can be "-t" or "-f"
 <br>
 keep line breaks in text can be "-t" or "-f"
 <br>
-<br>
 Program will create 2 files in output directory "Errors.html" and "formatted'filename'.xml"
 <br>
 <br>
 example:
-python3 FormatCode.py /home/alex/IdeaProjects/testXML/test.xml /home/alex/IdeaProjects/testXML 10 8 1 -t -t -f -f 
+python3 FormatCode.py /home/alex/IdeaProjects/testXML/test.xml /home/alex/IdeaProjects/testXML 4 8 1 -f -f -f -f -f -t -t 
 

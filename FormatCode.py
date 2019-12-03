@@ -299,12 +299,13 @@ def create_new_xml(continuation_indent):
                                 result_string += '\n' + '\t' * nesting_level
                 aa = re.split(r'\n', result_string)
                 for ii in range(len(aa) - 1, -1, -1):
-                    if aa[ii].strip() != '':
+                    if not aa[ii].strip().startswith('<') and aa[ii].strip().endswith('>'):
                         if aa[ii].count('</') == 1 and aa[ii].count('<') == 1:
                             if not aa[ii].startswith('<'):
                                 aa[ii] = aa[ii].replace('<', '\n' + '\t' * nesting_level + '<')
                                 result_string = '\n'.join(aa)
                         break
+                    break
             if key == 'between_tag':
                 value = value.replace('\n', '\n' + '\t' * nesting_level)
                 if len(new_tokens) > i + 1:

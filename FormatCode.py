@@ -302,8 +302,8 @@ def create_new_xml(continuation_indent):
                                 b = find_close_tag(value)
                                 if a != b:
                                     result_string = result_string + '\n' + '\t' * (nesting_level - 1)
-                            elif value_i.endswith('/>'):
-                                result_string = result_string + '\n' + '\t' * (nesting_level - 1)
+                            # elif value_i.endswith('/>'):
+                            #     result_string = result_string + '\n' + '\t' * (nesting_level - 1)
                             else:
                                 result_string = result_string + '\n' + '\t' * (nesting_level - 1)
                         else:

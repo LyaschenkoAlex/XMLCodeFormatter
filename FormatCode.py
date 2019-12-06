@@ -243,7 +243,8 @@ def create_new_tokens():
                     value = value[1:]
                 while value.endswith(' '):
                     value = value[:-1]
-                new_tokens.append({'between_tag': value})
+                if value != '':
+                    new_tokens.append({'between_tag': value})
             elif key == 'comment':
                 new_tokens.append({'comment': value})
             elif key == 'doctype':
@@ -301,6 +302,8 @@ def create_new_xml(continuation_indent):
                                 b = find_close_tag(value)
                                 if a != b:
                                     result_string = result_string + '\n' + '\t' * (nesting_level - 1)
+                            elif value_i.endswith('/>'):
+                                result_string = result_string + '\n' + '\t' * (nesting_level - 1)
                             else:
                                 result_string = result_string + '\n' + '\t' * (nesting_level - 1)
                         else:
@@ -351,6 +354,7 @@ def create_new_xml(continuation_indent):
                 result_string += value
             if key == 'comment':
                 result_string += value
+                result_string+='\n'
             if key == 'question_tag':
                 result_string += value
             if key == 'doctype':
@@ -379,7 +383,7 @@ if __name__ == '__main__':
     ############
     try:
         program_path, directory_path, path_to_res, own = argv
-        f = open("params.txt","r")
+        f = open("params.txt", "r")
 
         s = f.read().split('\n')
         indent = s[0].split(' ')[-1]
@@ -399,7 +403,7 @@ if __name__ == '__main__':
         print("continutation indent " + continuation_indent)
         print("blank lines -> " + blank_lines)  # +
         print("space around " + space_around)
-        print("space in empty tag" + space_in_empty_tag)
+        print("space in empty tag " + space_in_empty_tag)
         print("indent on empty line -> " + indent_on_empty_line)
         print("space after tag -> " + space_after_tag)
         print("keep white spaces -> " + keep_white_spaces)

@@ -1,0 +1,10 @@
+indent -> 15
+contination indent -> 8
+blank lines -> 1
+space around -> -f
+space in empty tag -> -f
+indent on empty line -> -f
+space after tag -> -f
+keep white spaces -> -f
+wrap text -> -t
+keep line breaks in text -> -t

@@ -278,7 +278,7 @@ def create_new_xml(continuation_indent):
     for i in range(len(new_tokens)):
         for key, value in new_tokens[i].items():
             if key == 'tag':
-                if len(new_tokens) -1 > i and not value.startswith('</'):
+                if len(new_tokens) - 1 > i and not value.startswith('</'):
                     if len(result_string) > 0 and not result_string.endswith('\n'):
                         for key_j, value_j in new_tokens[i + 1].items():
                             if key_j == 'between_tag':
@@ -378,14 +378,28 @@ if __name__ == '__main__':
     # keep blank lines in text
     ############
     try:
-        program_path, directory_path, path_to_res, indent, continuation_indent, blank_lines, space_around, space_in_empty_tag, indent_on_empty_line, space_after_tag, keep_white_spaces, wrap_text, keep_line_breaks_in_text = argv
+        program_path, directory_path, path_to_res, own = argv
+        f = open("params.txt","r")
+
+        s = f.read().split('\n')
+        indent = s[0].split(' ')[-1]
+        continuation_indent = s[1].split(' ')[-1]
+        blank_lines = s[2].split(' ')[-1]
+        space_around = s[3].split(' ')[-1]
+        space_in_empty_tag = s[4].split(' ')[-1]
+        indent_on_empty_line = s[5].split(' ')[-1]
+        space_after_tag = s[6].split(' ')[-1]
+        keep_white_spaces = s[7].split(' ')[-1]
+        wrap_text = s[8].split(' ')[-1]
+        keep_line_breaks_in_text = s[9].split(' ')[-1]
+
         print("input path -> " + directory_path)  # +
         print("output path -> " + path_to_res)  # +
-        print("indent -> " + indent)  # +
-        print("contination indent -> " + continuation_indent)  # +
+        print("indent " + indent)
+        print("continutation indent " + continuation_indent)
         print("blank lines -> " + blank_lines)  # +
-        print("space around -> " + space_around)  # +
-        print("space in empty tag -> " + space_in_empty_tag)  # +
+        print("space around " + space_around)
+        print("space in empty tag" + space_in_empty_tag)
         print("indent on empty line -> " + indent_on_empty_line)
         print("space after tag -> " + space_after_tag)
         print("keep white spaces -> " + keep_white_spaces)

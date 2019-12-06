@@ -14,7 +14,9 @@ Program will create 2 files in output directory "outputErrors.html" for basic fo
 outputErrors.html will contain a list of errors
 
 <br>
-Run the ReadFile.py with 12 parameters: input directory, output, indent, continuation indent, blank lines, space around =", space in empty tag, indent on empty line, space after tag, keep white spaces, wrap text, keep line breaks in text:
+Run the ReadFile.py with 3 parameters: input directory, output, -c:
+<br>
+Go to the params.txt, change your parameters there
 <br>
 indent is a number, it must be >= 0
 <br>
@@ -40,5 +42,5 @@ Program will create 2 files in output directory "Errors.html" and "formatted'fil
 <br>
 <br>
 example:
-python3 FormatCode.py /home/alex/IdeaProjects/testXML/test.xml /home/alex/IdeaProjects/testXML 4 8 1 -f -f -f -f -f -t -t 
+python3 FormatCode.py /home/alex/IdeaProjects/testXML/test.xml /home/alex/IdeaProjects/testXML -o
 

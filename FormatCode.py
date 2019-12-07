@@ -1,6 +1,7 @@
 import re
 from sys import argv
 from Errors import find_errors
+
 tokens = []
 new_tokens = []
 number_of_brackets = 0  # <  >
@@ -18,7 +19,6 @@ in_tag = ''
 doctype = ''
 xml_tag_old = ''
 xmo_tag_new = ''
-
 
 directory_path = ''
 path_to_res = ''
@@ -49,21 +49,20 @@ def read_from_file(file_name):
                 right += 1
         input_file = input_file.replace(doctype, '```')
 
-
     return open(file_name).read()
 
 
-def get_char_from_file():
+def get_char_from_file(wrap_text, keep_line_breaks_in_text):
     global input_file
     for i in input_file:
-        parse(i)
+        parse(i, wrap_text, keep_line_breaks_in_text)
 
 
-def parse(input):
+def parse(input, wrap_text, keep_line_breaks_in_text):
     if is_comment:
         in_brackets(input)
     elif input == "<":
-        less(input)
+        less(input, wrap_text, keep_line_breaks_in_text)
     elif input == ">":
         greater(input)
     elif number_of_brackets == 1:
@@ -72,7 +71,7 @@ def parse(input):
         between_brackets(input)
 
 
-def less(input):
+def less(input, wrap_text, keep_line_breaks_in_text):
     if is_doctype:
         in_brackets(input)
         return
@@ -84,6 +83,32 @@ def less(input):
             text_between_brackets = re.sub(r'\n[ ]+', '\n', text_between_brackets)
             text_between_brackets = text_between_brackets
             if text_between_brackets != "":
+                #############
+                if keep_line_breaks_in_text == '-f':
+                    if len(text_between_brackets) > 10:
+                        first = 0
+                        second = 0
+                        a = 0
+                        while text_between_brackets[a] == '\n':
+                            a += 1
+                            first += 1
+                        a = len(text_between_brackets) - 1
+                        while text_between_brackets[a] == '\n':
+                            a -= 1
+                            second += 1
+                        text_between_brackets = text_between_brackets.replace('\n', ' ')
+                        text_between_brackets = re.sub(r'[ ][ ]+', ' ', text_between_brackets)
+                        for ji in range(110, len(text_between_brackets), 110):
+                            text_between_brackets = text_between_brackets[:ji] + '\n' + text_between_brackets[ji:]
+                        text_between_brackets = '\n' * first + text_between_brackets + '\n' * second
+                #############
+                if wrap_text == '-t':
+                    arr_between = text_between_brackets.split('\n')
+                    for ji in range(len(arr_between)):
+                        if len(arr_between[ji]) > 110:
+                            arr_between[ji] = arr_between[ji][:110] + '\n' + arr_between[ji][150:]
+                    text_between_brackets = '\n'.join(arr_between)
+                ##################
                 tokens.append({"between_brackets": text_between_brackets})
             text_between_brackets = ""
         number_of_brackets += 1
@@ -207,7 +232,7 @@ def create_new_tokens():
                     value = value[:-1]
                 if value.endswith('/'):
                     while value[:-1].endswith(' '):
-                        value = value [:-2] + '/'
+                        value = value[:-2] + '/'
                 if value.startswith('/'):
                     while value[1:].startswith(' '):
                         value = '/' + value[2:]
@@ -218,7 +243,8 @@ def create_new_tokens():
                     value = value[1:]
                 while value.endswith(' '):
                     value = value[:-1]
-                new_tokens.append({'between_tag': value})
+                if value != '':
+                    new_tokens.append({'between_tag': value})
             elif key == 'comment':
                 new_tokens.append({'comment': value})
             elif key == 'doctype':
@@ -246,17 +272,29 @@ def find_some_tag(value):
         s += value[i]
     return s
 
-def create_new_xml():
+
+def create_new_xml(continuation_indent):
     global nesting_level
     global result_string
     for i in range(len(new_tokens)):
         for key, value in new_tokens[i].items():
             if key == 'tag':
+                if len(new_tokens) - 1 > i and not value.startswith('</'):
+                    if len(result_string) > 0 and not result_string.endswith('\n'):
+                        for key_j, value_j in new_tokens[i + 1].items():
+                            if key_j == 'between_tag':
+                                qqq = result_string
+                                while qqq.endswith('\t') or qqq.endswith(' '):
+                                    qqq = qqq[:-1]
+                                if not qqq.endswith('\n'):
+                                    if value_j.startswith('\n'):
+                                        result_string += '\n' + '\t' * nesting_level
                 if i > 0 and value.startswith('</'):
                     for key_i, value_i in new_tokens[i - 1].items():
                         if key_i == 'tag' and result_string.endswith('\t'):
                             result_string = result_string[:-1]
-                if i > 2 and value.startswith('</') and not result_string.endswith('\t') and not result_string.endswith('\n'):
+                if i > 2 and value.startswith('</') and not result_string.endswith('\t') and not result_string.endswith(
+                        '\n'):
                     for key_i, value_i in new_tokens[i - 1].items():
                         if key_i == 'tag':
                             if not value_i.startswith('</') and not value_i.endswith('/>'):
@@ -264,6 +302,8 @@ def create_new_xml():
                                 b = find_close_tag(value)
                                 if a != b:
                                     result_string = result_string + '\n' + '\t' * (nesting_level - 1)
+                            # elif value_i.endswith('/>'):
+                            #     result_string = result_string + '\n' + '\t' * (nesting_level - 1)
                             else:
                                 result_string = result_string + '\n' + '\t' * (nesting_level - 1)
                         else:
@@ -276,8 +316,12 @@ def create_new_xml():
                                             result_string = result_string + '\n' + '\t' * (nesting_level - 1)
                                     else:
                                         result_string = result_string + '\n' + '\t' * (nesting_level - 1)
-
-                result_string += value
+                value = re.sub('\t', ' ', value)
+                value = re.sub('[ ][ ]+', ' ', value)
+                value = value.replace('\n ', '\n')
+                q = value.replace('\n', ' ' * (nesting_level - 1) * continuation_indent)
+                result_string += value.replace('\n', '\n' + ' ' * continuation_indent + '\t' * nesting_level)
+                # result_string += value
                 if not value.startswith('</') and not value.endswith('/>'):
                     nesting_level += 1
                 elif value.startswith('</'):
@@ -292,6 +336,15 @@ def create_new_xml():
                         for key_i, value_i in new_tokens[i + 1].items():
                             if key_i == 'tag':
                                 result_string += '\n' + '\t' * nesting_level
+                aa = re.split(r'\n', result_string)
+                for ii in range(len(aa) - 1, -1, -1):
+                    if not aa[ii].strip().startswith('<') and aa[ii].strip().endswith('>'):
+                        if aa[ii].count('</') == 1 and aa[ii].count('<') == 1:
+                            if not aa[ii].startswith('<'):
+                                aa[ii] = aa[ii].replace('<', '\n' + '\t' * nesting_level + '<')
+                                result_string = '\n'.join(aa)
+                        break
+                    break
             if key == 'between_tag':
                 value = value.replace('\n', '\n' + '\t' * nesting_level)
                 if len(new_tokens) > i + 1:
@@ -301,6 +354,7 @@ def create_new_xml():
                 result_string += value
             if key == 'comment':
                 result_string += value
+                result_string+='\n'
             if key == 'question_tag':
                 result_string += value
             if key == 'doctype':
@@ -309,44 +363,93 @@ def create_new_xml():
                 result_string += value
 
 
-
-
-def start_format(path_to_file):
+def start_format(path_to_file, continuation_indent, wrap_text, keep_line_breaks_in_text):
     global result_string
     read_from_file(path_to_file)
-    get_char_from_file()
+    get_char_from_file(wrap_text, keep_line_breaks_in_text)
     create_new_tokens()
-    # print(tokens)
-    # print(new_tokens)
-    create_new_xml()
-    # print(result_string)
+    create_new_xml(continuation_indent)
+
 
 if __name__ == '__main__':
-    # global directory_path
-    # global path_to_res
-    # global indent
-    # global blank_lines
-    # global space_around
-    # global space_in_empty_tag
+    space_after_tag = '-f'
+    continuation_indent = 8  # +
+    keep_white_spaces = '-f'
+    wrap_text = '-t'
+    keep_line_breaks_in_text = '-t'
+    ##############
+    # keep blank lines
+    # keep blank lines in text
+    ############
     try:
-        program_path, directory_path, path_to_res, indent, blank_lines, space_around, space_in_empty_tag = argv
-        print("input path -> " + directory_path)#+
-        print("output path -> " + path_to_res)#+
-        print("indent -> " + indent)#+
-        print("blank lines -> " + blank_lines)#+
-        print("space around -> " + space_around)#+
-        print("space in empty tag -> " + space_in_empty_tag)#+
+        program_path, directory_path, path_to_res, own = argv
+        f = open("params.txt", "r")
+
+        s = f.read().split('\n')
+        indent = s[0].split(' ')[-1]
+        continuation_indent = s[1].split(' ')[-1]
+        blank_lines = s[2].split(' ')[-1]
+        space_around = s[3].split(' ')[-1]
+        space_in_empty_tag = s[4].split(' ')[-1]
+        indent_on_empty_line = s[5].split(' ')[-1]
+        space_after_tag = s[6].split(' ')[-1]
+        keep_white_spaces = s[7].split(' ')[-1]
+        wrap_text = s[8].split(' ')[-1]
+        keep_line_breaks_in_text = s[9].split(' ')[-1]
+
+        print("input path -> " + directory_path)  # +
+        print("output path -> " + path_to_res)  # +
+        print("indent " + indent)
+        print("continutation indent " + continuation_indent)
+        print("blank lines -> " + blank_lines)  # +
+        print("space around " + space_around)
+        print("space in empty tag " + space_in_empty_tag)
+        print("indent on empty line -> " + indent_on_empty_line)
+        print("space after tag -> " + space_after_tag)
+        print("keep white spaces -> " + keep_white_spaces)
+        print("wrap text -> " + wrap_text)
+        print("keep line breaks in text -> " + keep_line_breaks_in_text)
         blank_lines = int(blank_lines)
         indent = int(indent)
+        continuation_indent = int(continuation_indent)
     except:
+        keep_line_breaks_in_text = '-t'
+        wrap_text = '-t'
+        keep_white_spaces = '-f'
+        keep_line_breaks = '-f'
+        indent_on_empty_line = '-f'
+        continuation_indent = 8
         program_path, directory_path, path_to_res = argv
         print('Only basic formatting')
-    start_format(directory_path)
+
+    start_format(directory_path, continuation_indent, wrap_text, keep_line_breaks_in_text)
     f = open(path_to_res + '/' + "formatted" + directory_path.split('/')[-1], 'w')
+
+    if keep_white_spaces == '-t':
+        input_file = open(directory_path).read()
+        f.write(input_file)
+        f.close()
+        exit(0)
     if space_in_empty_tag == '-t':
         result_string = result_string.replace('/>', ' />')
     if indent != '':
         result_string = result_string.replace('\t', ' ' * indent)
+    if indent_on_empty_line == '-f':
+        a = result_string.split('\n')
+        for i in range(len(a)):
+            if a[i].strip() == '':
+                a[i] = ''
+        result_string = '\n'.join(a)
+    if space_after_tag == '-t':
+        result_string = result_string.replace(' />', '/>')
+        a = re.findall('<[^<]+>', result_string)
+        for i in a:
+            if i.endswith(' />'):
+                continue
+            elif i.endswith('/>'):
+                result_string = result_string.replace(i, i[:-2] + ' />')
+            elif i.endswith('>') and not i.endswith('-->') and not i.endswith(' >'):
+                result_string = result_string.replace(i, i[:-1] + ' >')
     f.write(result_string)
     f.close()
     find_errors(directory_path, path_to_res)
